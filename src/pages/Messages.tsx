@@ -211,7 +211,7 @@ function MessageListItem({
   onClick: () => void
   onDelete: () => void
 }) {
-  const tierInfo = TIER_INFO[message.senderTier]
+  const tierInfo = TIER_INFO[message.senderTier] || TIER_INFO.bronze
   const isUnread = type === 'received' && !message.isRead
 
   return (
@@ -278,7 +278,7 @@ function MessageDetail({
   message: Message
   type: TabType
 }) {
-  const tierInfo = TIER_INFO[message.senderTier]
+  const tierInfo = TIER_INFO[message.senderTier] || TIER_INFO.bronze
 
   return (
     <div>

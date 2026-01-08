@@ -53,6 +53,7 @@ export default function Header() {
     { path: '/introduction', label: '자기소개' },
     { path: '/free', label: '자유게시판' },
     { path: '/games', label: '게임' },
+    { path: '/gallery', label: '갤러리' },
     { path: '/ranking', label: '랭킹' },
   ]
 

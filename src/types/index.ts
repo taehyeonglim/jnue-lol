@@ -10,6 +10,7 @@ export interface User {
   tier: TierType
   isAdmin: boolean
   isChallenger: boolean
+  isTestAccount?: boolean
   createdAt: Date
   introduction?: string
   favoriteGame?: string
@@ -71,10 +72,10 @@ export interface Message {
 export const TIER_THRESHOLDS: Record<TierType, { min: number; max: number }> = {
   bronze: { min: 0, max: 99 },
   silver: { min: 100, max: 299 },
-  gold: { min: 300, max: 599 },
-  platinum: { min: 600, max: 999 },
-  diamond: { min: 1000, max: 1499 },
-  master: { min: 1500, max: Infinity },
+  gold: { min: 300, max: 699 },
+  platinum: { min: 700, max: 1499 },
+  diamond: { min: 1500, max: 2999 },
+  master: { min: 3000, max: Infinity },
   challenger: { min: 0, max: Infinity },
 }
 
@@ -93,4 +94,14 @@ export const POINT_VALUES = {
   POST: 10,
   COMMENT: 3,
   LIKE_RECEIVED: 2,
+}
+
+export interface GalleryImage {
+  id: string
+  imageURL: string
+  title: string
+  description?: string
+  uploadedBy: string
+  uploadedByName: string
+  createdAt: Date
 }

@@ -151,7 +151,7 @@ export default function PostDetail() {
   const isAuthor = currentUser?.uid === post.authorId
   const isAdmin = currentUser?.isAdmin
   const isLiked = currentUser && post.likes.includes(currentUser.uid)
-  const tierInfo = TIER_INFO[post.authorTier]
+  const tierInfo = TIER_INFO[post.authorTier] || TIER_INFO.bronze
 
   return (
     <div className="section">
@@ -350,7 +350,7 @@ function CommentItem({
     ? comment.createdAt
     : new Date(comment.createdAt)
 
-  const tierInfo = TIER_INFO[comment.authorTier]
+  const tierInfo = TIER_INFO[comment.authorTier] || TIER_INFO.bronze
 
   return (
     <div className="flex gap-3 p-4 bg-[#010A13] rounded border border-[#1E2328]">

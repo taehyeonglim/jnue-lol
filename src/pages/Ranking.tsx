@@ -21,17 +21,20 @@ export default function Ranking() {
       const q = query(
         collection(db, 'users'),
         orderBy('points', 'desc'),
-        limit(50)
+        limit(100)
       )
       const snapshot = await getDocs(q)
-      const usersData = snapshot.docs.map((doc) => {
-        const data = doc.data()
-        return {
-          uid: doc.id,
-          ...data,
-          createdAt: data.createdAt?.toDate() || new Date(),
-        } as User
-      })
+      const usersData = snapshot.docs
+        .map((doc) => {
+          const data = doc.data()
+          return {
+            uid: doc.id,
+            ...data,
+            createdAt: data.createdAt?.toDate() || new Date(),
+          } as User
+        })
+        .filter((user) => !user.isTestAccount)
+        .slice(0, 50)
       setUsers(usersData)
     } catch (error) {
       console.error('랭킹 로딩 실패:', error)
@@ -249,7 +252,7 @@ function RankingRow({
 
   const rankDisplay = getRankDisplay()
   const displayName = user.nickname || user.displayName
-  const tierInfo = TIER_INFO[user.tier]
+  const tierInfo = TIER_INFO[user.tier] || TIER_INFO.bronze
 
   return (
     <div

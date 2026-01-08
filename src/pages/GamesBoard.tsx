@@ -79,7 +79,7 @@ export default function GamesBoard() {
 }
 
 function GameCard({ post }: { post: Post }) {
-  const tierInfo = TIER_INFO[post.authorTier]
+  const tierInfo = TIER_INFO[post.authorTier] || TIER_INFO.bronze
 
   return (
     <Link to={`/post/${post.id}`} className="card card-hover block group">

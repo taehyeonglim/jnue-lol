@@ -20,7 +20,7 @@ export default function SendMessageModal({
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
-  const tierInfo = TIER_INFO[receiver.tier]
+  const tierInfo = TIER_INFO[receiver.tier] || TIER_INFO.bronze
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

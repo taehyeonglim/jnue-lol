@@ -79,7 +79,7 @@ export default function FreeBoard() {
 }
 
 function PostItem({ post, isLast }: { post: Post; isLast: boolean }) {
-  const tierInfo = TIER_INFO[post.authorTier]
+  const tierInfo = TIER_INFO[post.authorTier] || TIER_INFO.bronze
 
   return (
     <Link

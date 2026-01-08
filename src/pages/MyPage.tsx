@@ -162,7 +162,7 @@ export default function MyPage() {
 
   const nextTierInfo = getNextTier()
   const displayNickname = currentUser.nickname || currentUser.displayName
-  const tierInfo = TIER_INFO[currentUser.tier]
+  const tierInfo = TIER_INFO[currentUser.tier] || TIER_INFO.bronze
 
   return (
     <div>

@@ -39,17 +39,20 @@ export default function Home() {
       const q = query(
         collection(db, 'users'),
         orderBy('points', 'desc'),
-        limit(20)
+        limit(30)
       )
       const snapshot = await getDocs(q)
-      const usersData = snapshot.docs.map((doc) => {
-        const data = doc.data()
-        return {
-          uid: doc.id,
-          ...data,
-          createdAt: data.createdAt?.toDate() || new Date(),
-        } as User
-      })
+      const usersData = snapshot.docs
+        .map((doc) => {
+          const data = doc.data()
+          return {
+            uid: doc.id,
+            ...data,
+            createdAt: data.createdAt?.toDate() || new Date(),
+          } as User
+        })
+        .filter((user) => !user.isTestAccount)
+        .slice(0, 20)
       setMembers(usersData)
     } catch (error) {
       console.error('회원 로딩 실패:', error)
@@ -274,7 +277,7 @@ function PointItem({ label, points }: { label: string; points: number }) {
 }
 
 function MemberCard({ member, rank }: { member: User; rank: number }) {
-  const tierInfo = TIER_INFO[member.tier]
+  const tierInfo = TIER_INFO[member.tier] || TIER_INFO.bronze
   const displayName = member.nickname || member.displayName
 
   return (

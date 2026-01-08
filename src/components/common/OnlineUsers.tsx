@@ -60,7 +60,7 @@ export default function OnlineUsers() {
         const data = doc.data()
         const lastSeen = data.lastSeen?.toDate?.() || new Date()
 
-        if (now - lastSeen.getTime() < 60000) {
+        if (now - lastSeen.getTime() < 120000) {
           users.push({
             uid: doc.id,
             displayName: data.displayName,
@@ -125,7 +125,7 @@ export default function OnlineUsers() {
             ) : (
               <div className="max-h-52 overflow-y-auto py-1">
                 {onlineUsers.map((user) => {
-                  const tierInfo = TIER_INFO[user.tier]
+                  const tierInfo = TIER_INFO[user.tier] || TIER_INFO.bronze
                   return (
                     <div
                       key={user.uid}

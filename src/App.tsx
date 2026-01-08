@@ -9,6 +9,7 @@ import Home from './pages/Home'
 import Introduction from './pages/Introduction'
 import FreeBoard from './pages/FreeBoard'
 import GamesBoard from './pages/GamesBoard'
+import Gallery from './pages/Gallery'
 import PostDetail from './pages/PostDetail'
 import WritePost from './pages/WritePost'
 import EditPost from './pages/EditPost'
@@ -35,6 +36,7 @@ export default function App() {
         <Route path="introduction" element={<Introduction />} />
         <Route path="free" element={<FreeBoard />} />
         <Route path="games" element={<GamesBoard />} />
+        <Route path="gallery" element={<Gallery />} />
         <Route path="post/:id" element={<PostDetail />} />
         <Route path="ranking" element={<Ranking />} />
 
