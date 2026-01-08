@@ -1,0 +1,292 @@
+import { useState, useRef } from 'react'
+import { useNavigate, useSearchParams, Link } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
+import { createPost, uploadPostImage } from '../services/postService'
+import { Post, POINT_VALUES } from '../types'
+
+export default function WritePost() {
+  const { currentUser, refreshUser } = useAuth()
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const category = (searchParams.get('category') || 'free') as Post['category']
+
+  const [title, setTitle] = useState('')
+  const [content, setContent] = useState('')
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const getCategoryInfo = () => {
+    switch (category) {
+      case 'introduction':
+        return {
+          label: '자기소개',
+          icon: '👤',
+          link: '/introduction',
+          points: POINT_VALUES.INTRODUCTION,
+          titlePlaceholder: '자기소개 제목을 입력하세요',
+          contentPlaceholder: '자신을 소개해주세요! 좋아하는 게임, 취미, 하고 싶은 말 등을 자유롭게 작성해보세요.',
+        }
+      case 'games':
+        return {
+          label: '좋아하는 게임',
+          icon: '🎮',
+          link: '/games',
+          points: POINT_VALUES.POST,
+          titlePlaceholder: '게임 이름을 입력하세요',
+          contentPlaceholder: '좋아하는 게임을 추천해주세요! 게임 이름, 장르, 좋아하는 이유 등을 적어주세요.',
+        }
+      default:
+        return {
+          label: '자유게시판',
+          icon: '💬',
+          link: '/free',
+          points: POINT_VALUES.POST,
+          titlePlaceholder: '제목을 입력하세요',
+          contentPlaceholder: '자유롭게 글을 작성해주세요.',
+        }
+    }
+  }
+
+  const categoryInfo = getCategoryInfo()
+
+  const processImageFile = (file: File) => {
+    if (file.size > 5 * 1024 * 1024) {
+      setError('이미지 크기는 5MB 이하여야 합니다.')
+      return false
+    }
+    if (!file.type.startsWith('image/')) {
+      setError('이미지 파일만 업로드할 수 있습니다.')
+      return false
+    }
+    setImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
+    setError('')
+    return true
+  }
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      processImageFile(file)
+    }
+  }
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items
+    if (!items) return
+
+    for (const item of items) {
+      if (item.type.startsWith('image/')) {
+        e.preventDefault()
+        const file = item.getAsFile()
+        if (file) {
+          processImageFile(file)
+        }
+        break
+      }
+    }
+  }
+
+  const handleRemoveImage = () => {
+    setImageFile(null)
+    setImagePreview(null)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!currentUser) return
+
+    if (!title.trim()) {
+      setError('제목을 입력해주세요.')
+      return
+    }
+    if (!content.trim()) {
+      setError('내용을 입력해주세요.')
+      return
+    }
+
+    setSubmitting(true)
+    setError('')
+
+    try {
+      let imageURL: string | undefined
+
+      if (imageFile) {
+        imageURL = await uploadPostImage(imageFile, currentUser.uid)
+      }
+
+      const postId = await createPost(currentUser, title.trim(), content.trim(), category, imageURL)
+      await refreshUser()
+      navigate(`/post/${postId}`)
+    } catch (err) {
+      console.error('글 작성 실패:', err)
+      setError('글 작성에 실패했습니다. 다시 시도해주세요.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  if (!currentUser) {
+    return (
+      <div className="section">
+        <div className="container-xs">
+          <div className="card text-center py-16">
+            <div className="text-5xl mb-4">🔒</div>
+            <p className="text-[#A09B8C] mb-6">로그인이 필요합니다</p>
+            <Link to="/" className="btn btn-primary">
+              홈으로 가기
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="section">
+      <div className="container-sm">
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-2 text-sm text-[#A09B8C] mb-6">
+          <Link to="/" className="hover:text-[#C8AA6E] transition-colors">홈</Link>
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+          <Link to={categoryInfo.link} className="hover:text-[#C8AA6E] transition-colors flex items-center gap-1">
+            <span>{categoryInfo.icon}</span>
+            <span>{categoryInfo.label}</span>
+          </Link>
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+          <span>글쓰기</span>
+        </nav>
+
+        <div className="card">
+          {/* Header */}
+          <div className="card-header flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">{categoryInfo.icon}</span>
+              <h1 className="heading-3 text-[#C8AA6E]">{categoryInfo.label}</h1>
+            </div>
+            <span className="badge badge-gold">+{categoryInfo.points}P</span>
+          </div>
+
+          <div className="card-body">
+            {error && (
+              <div className="mb-5 p-4 bg-red-500/10 border border-red-500/20 rounded text-sm text-red-400 flex items-center gap-2">
+                <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{error}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit}>
+              <div className="mb-5">
+                <label htmlFor="title" className="block text-sm font-medium text-[#F0E6D2] mb-2">
+                  제목
+                </label>
+                <input
+                  type="text"
+                  id="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder={categoryInfo.titlePlaceholder}
+                  className="input"
+                  maxLength={100}
+                />
+              </div>
+
+              <div className="mb-6">
+                <label htmlFor="content" className="block text-sm font-medium text-[#F0E6D2] mb-2">
+                  내용
+                </label>
+                <textarea
+                  id="content"
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  onPaste={handlePaste}
+                  placeholder={categoryInfo.contentPlaceholder}
+                  className="input textarea h-64"
+                  maxLength={5000}
+                />
+                <div className="flex justify-between mt-2">
+                  <span className="text-xs text-[#3C3C41]">Ctrl+V로 이미지 붙여넣기 가능</span>
+                  <span className="text-xs text-[#A09B8C]">{content.length} / 5000</span>
+                </div>
+              </div>
+
+              {/* Image Upload */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-[#F0E6D2] mb-2">
+                  이미지 첨부 <span className="text-[#A09B8C] font-normal">(선택)</span>
+                </label>
+
+                {imagePreview ? (
+                  <div className="relative">
+                    <img
+                      src={imagePreview}
+                      alt="미리보기"
+                      className="w-full max-h-80 object-contain rounded border border-[#3C3C41] bg-[#010A13]"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="absolute top-2 right-2 w-8 h-8 bg-red-500/80 hover:bg-red-500 rounded-full flex items-center justify-center transition-colors"
+                    >
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                ) : (
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    className="border-2 border-dashed border-[#3C3C41] rounded-lg p-8 text-center cursor-pointer hover:border-[#C8AA6E]/50 transition-colors"
+                  >
+                    <svg className="w-10 h-10 mx-auto mb-3 text-[#3C3C41]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <p className="text-sm text-[#A09B8C] mb-1">클릭하여 이미지 업로드</p>
+                    <p className="text-xs text-[#3C3C41]">PNG, JPG, GIF (최대 5MB)</p>
+                  </div>
+                )}
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => navigate(-1)}
+                  className="flex-1 btn btn-secondary"
+                >
+                  취소
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="flex-1 btn btn-primary"
+                >
+                  {submitting ? '작성 중...' : '작성하기'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

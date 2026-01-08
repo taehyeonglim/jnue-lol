@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#C89B3C"/>
+      <stop offset="100%" style="stop-color:#FFD700"/>
+    </linearGradient>
+  </defs>
+  <circle cx="50" cy="50" r="45" fill="#0A1428" stroke="url(#gold)" stroke-width="3"/>
+  <text x="50" y="40" text-anchor="middle" fill="#C89B3C" font-size="14" font-weight="bold">JNUE</text>
+  <text x="50" y="60" text-anchor="middle" fill="#0AC8B9" font-size="18" font-weight="bold">LOL</text>
+  <text x="50" y="75" text-anchor="middle" fill="#F0E6D3" font-size="8">e-Sports</text>
+</svg>
