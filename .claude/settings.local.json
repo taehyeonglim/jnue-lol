@@ -18,7 +18,11 @@
       "Bash(npx tsc:*)",
       "Bash(git rm:*)",
       "Bash(git push:*)",
-      "Bash(npx firebase deploy:*)"
+      "Bash(npx firebase deploy:*)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "WebFetch(domain:jnue-lol.web.app)",
+      "Bash(curl:*)",
+      "Bash(npx firebase:*)"
     ]
   }
 }
