@@ -4,6 +4,8 @@ import { useAuth } from '../contexts/AuthContext'
 import { getPosts } from '../services/postService'
 import { Post, POINT_VALUES, TIER_INFO } from '../types'
 import LoadingSpinner from '../components/common/LoadingSpinner'
+import { Button, Tag, Tile } from '@carbon/react'
+import { Add, Image } from '@carbon/icons-react'
 
 export default function GamesBoard() {
   const { currentUser } = useAuth()
@@ -33,46 +35,58 @@ export default function GamesBoard() {
     <div>
       {/* Page Header */}
       <div className="page-header">
-        <div className="container">
-          <h1 className="page-title">좋아하는 게임</h1>
-          <p className="page-desc">좋아하는 게임을 공유하고 함께 즐겨요</p>
+        <div className="page-container">
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 600, color: '#f4f4f4', marginBottom: '0.5rem' }}>
+            좋아하는 게임
+          </h1>
+          <p style={{ color: '#c6c6c6' }}>좋아하는 게임을 공유하고 함께 즐겨요</p>
         </div>
       </div>
 
-      <div className="section">
-        <div className="container-sm">
-          {/* Action Bar */}
-          {currentUser && (
-            <div className="flex justify-end mb-6">
-              <Link to="/write?category=games" className="btn btn-primary">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
+      <div className="page-container-sm">
+        {/* Action Bar */}
+        {currentUser && (
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.5rem' }}>
+            <Link to="/write?category=games">
+              <Button kind="primary" renderIcon={Add}>
                 게임 추천하기
-                <span className="badge badge-gold ml-1">+{POINT_VALUES.POST}P</span>
-              </Link>
-            </div>
-          )}
+                <Tag type="blue" size="sm" style={{ marginLeft: '0.5rem' }}>
+                  +{POINT_VALUES.POST}P
+                </Tag>
+              </Button>
+            </Link>
+          </div>
+        )}
 
-          {/* Posts */}
-          {posts.length === 0 ? (
-            <div className="card text-center py-16">
-              <div className="text-5xl mb-4">🎮</div>
-              <p className="text-[#A09B8C] mb-6">아직 게시글이 없습니다</p>
-              {currentUser && (
-                <Link to="/write?category=games" className="btn btn-primary">
-                  첫 게임 추천하기
-                </Link>
-              )}
-            </div>
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {posts.map((post) => (
-                <GameCard key={post.id} post={post} />
-              ))}
-            </div>
-          )}
-        </div>
+        {/* Posts */}
+        {posts.length === 0 ? (
+          <Tile style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎮</div>
+            <p style={{ color: '#c6c6c6', marginBottom: '1.5rem' }}>아직 게시글이 없습니다</p>
+            {currentUser && (
+              <Link to="/write?category=games">
+                <Button kind="primary">첫 게임 추천하기</Button>
+              </Link>
+            )}
+          </Tile>
+        ) : (
+          <div
+            style={{
+              display: 'grid',
+              gap: '1rem',
+              gridTemplateColumns: 'repeat(1, 1fr)',
+            }}
+            className="games-grid"
+          >
+            <style>{`
+              @media (min-width: 640px) { .games-grid { grid-template-columns: repeat(2, 1fr) !important; } }
+              @media (min-width: 1024px) { .games-grid { grid-template-columns: repeat(3, 1fr) !important; } }
+            `}</style>
+            {posts.map((post) => (
+              <GameCard key={post.id} post={post} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
@@ -82,61 +96,139 @@ function GameCard({ post }: { post: Post }) {
   const tierInfo = TIER_INFO[post.authorTier] || TIER_INFO.bronze
 
   return (
-    <Link to={`/post/${post.id}`} className="card card-hover block group">
-      {/* Game Banner */}
-      {post.imageURL ? (
-        <div className="h-32 relative overflow-hidden">
-          <img
-            src={post.imageURL}
-            alt={post.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#010A13] to-transparent" />
-        </div>
-      ) : (
-        <div className="h-24 bg-gradient-to-br from-[#0AC8B9]/20 via-[#1E2328] to-[#C8AA6E]/20 flex items-center justify-center relative overflow-hidden">
-          <span className="text-4xl group-hover:scale-110 transition-transform duration-300">🎮</span>
-          <div className="absolute inset-0 bg-gradient-to-t from-[#010A13] to-transparent" />
-        </div>
-      )}
-
-      {/* Content */}
-      <div className="p-4">
-        <div className="flex items-center gap-2 mb-2">
-          <h3 className="font-semibold text-[#F0E6D2] truncate group-hover:text-[#C8AA6E] transition-colors">
-            {post.title}
-          </h3>
-          {post.imageURL && (
-            <svg className="w-4 h-4 text-[#C8AA6E] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          )}
-        </div>
-        <p className="text-sm text-[#A09B8C] line-clamp-2 mb-4">{post.content}</p>
-
-        {/* Footer */}
-        <div className="flex items-center gap-3 pt-3 border-t border-[#1E2328]">
-          <img
-            src={post.authorPhotoURL || '/default-avatar.png'}
-            alt={post.authorName}
-            className="avatar avatar-sm"
-            style={{ borderColor: tierInfo.color }}
-          />
-          <div className="flex-1 min-w-0">
-            <span className="text-xs text-[#A09B8C] truncate block">{post.authorName}</span>
+    <Link to={`/post/${post.id}`} style={{ textDecoration: 'none' }}>
+      <Tile
+        style={{
+          padding: 0,
+          cursor: 'pointer',
+          overflow: 'hidden',
+          transition: 'background 0.15s',
+          height: '100%',
+        }}
+        onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) =>
+          (e.currentTarget.style.background = '#353535')
+        }
+        onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) =>
+          (e.currentTarget.style.background = '')
+        }
+      >
+        {/* Game Banner */}
+        {post.imageURL ? (
+          <div style={{ height: 128, position: 'relative', overflow: 'hidden' }}>
+            <img
+              src={post.imageURL}
+              alt={post.title}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                transition: 'transform 0.3s',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(to top, #161616, transparent)',
+              }}
+            />
           </div>
-          <div className="flex items-center gap-3 text-xs text-[#A09B8C]">
-            <span className="flex items-center gap-1">
-              <span className="text-red-400">♥</span>
-              <span>{post.likes.length}</span>
-            </span>
-            <span className="flex items-center gap-1">
-              <span>💬</span>
-              <span>{post.comments.length}</span>
-            </span>
+        ) : (
+          <div
+            style={{
+              height: 96,
+              background: 'linear-gradient(135deg, rgba(10,200,185,0.2), #262626, rgba(200,170,110,0.2))',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'relative',
+              overflow: 'hidden',
+            }}
+          >
+            <span style={{ fontSize: '2.5rem', transition: 'transform 0.3s' }}>🎮</span>
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(to top, #161616, transparent)',
+              }}
+            />
+          </div>
+        )}
+
+        {/* Content */}
+        <div style={{ padding: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <h3
+              style={{
+                fontWeight: 600,
+                color: '#f4f4f4',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {post.title}
+            </h3>
+            {post.imageURL && <Image size={16} style={{ color: '#C8AA6E', flexShrink: 0 }} />}
+          </div>
+          <p
+            style={{
+              fontSize: '0.875rem',
+              color: '#c6c6c6',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              marginBottom: '1rem',
+            }}
+          >
+            {post.content}
+          </p>
+
+          {/* Footer */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.75rem',
+              paddingTop: '0.75rem',
+              borderTop: '1px solid #393939',
+            }}
+          >
+            <img
+              src={post.authorPhotoURL || '/default-avatar.png'}
+              alt={post.authorName}
+              className="avatar avatar-sm"
+              style={{ borderColor: tierInfo.color }}
+            />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <span
+                style={{
+                  fontSize: '0.75rem',
+                  color: '#c6c6c6',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  display: 'block',
+                }}
+              >
+                {post.authorName}
+              </span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.75rem', color: '#c6c6c6' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                <span style={{ color: '#da1e28' }}>♥</span>
+                <span>{post.likes.length}</span>
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                <span>💬</span>
+                <span>{post.comments.length}</span>
+              </span>
+            </div>
           </div>
         </div>
-      </div>
+      </Tile>
     </Link>
   )
 }

@@ -9,6 +9,8 @@ import {
 } from '../services/messageService'
 import { Message, TIER_INFO } from '../types'
 import LoadingSpinner from '../components/common/LoadingSpinner'
+import { Tile, Button, Tabs, TabList, Tab, TabPanels, TabPanel } from '@carbon/react'
+import { TrashCan } from '@carbon/icons-react'
 
 type TabType = 'received' | 'sent'
 
@@ -68,17 +70,23 @@ export default function Messages() {
     }
   }
 
+  const handleTabChange = (evt: { selectedIndex: number }) => {
+    const tab = evt.selectedIndex === 0 ? 'received' : 'sent'
+    setActiveTab(tab)
+    setSelectedMessage(null)
+  }
+
   if (!currentUser) {
     return (
-      <div className="section">
-        <div className="container-xs">
-          <div className="card text-center py-16">
-            <div className="text-5xl mb-4">🔒</div>
-            <p className="text-[#A09B8C] mb-6">로그인이 필요합니다</p>
-            <Link to="/" className="btn btn-primary">
-              홈으로 가기
+      <div style={{ padding: '2rem 0' }}>
+        <div className="page-container-xs">
+          <Tile style={{ textAlign: 'center', padding: '4rem 1rem', background: '#262626' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔒</div>
+            <p style={{ color: '#c6c6c6', marginBottom: '1.5rem' }}>로그인이 필요합니다</p>
+            <Link to="/">
+              <Button kind="primary">홈으로 가기</Button>
             </Link>
-          </div>
+          </Tile>
         </div>
       </div>
     )
@@ -94,106 +102,133 @@ export default function Messages() {
         </div>
       </div>
 
-      <div className="section">
-        <div className="container-sm">
+      <div style={{ padding: '2rem 0' }}>
+        <div className="page-container-sm">
           {/* Tabs */}
-          <div className="flex gap-2 mb-6">
-            <button
-              onClick={() => {
-                setActiveTab('received')
-                setSelectedMessage(null)
-              }}
-              className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
-                activeTab === 'received'
-                  ? 'bg-[#C8AA6E] text-[#010A13]'
-                  : 'bg-[#1E2328] text-[#A09B8C] hover:bg-[#3C3C41]'
-              }`}
-            >
-              📥 받은 쪽지
-              {messages.filter((m) => !m.isRead && activeTab === 'received').length > 0 && (
-                <span className="ml-2 px-2 py-0.5 bg-red-500 text-white text-xs rounded-full">
-                  {messages.filter((m) => !m.isRead).length}
-                </span>
-              )}
-            </button>
-            <button
-              onClick={() => {
-                setActiveTab('sent')
-                setSelectedMessage(null)
-              }}
-              className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
-                activeTab === 'sent'
-                  ? 'bg-[#C8AA6E] text-[#010A13]'
-                  : 'bg-[#1E2328] text-[#A09B8C] hover:bg-[#3C3C41]'
-              }`}
-            >
-              📤 보낸 쪽지
-            </button>
-          </div>
-
-          <div className="grid gap-6 lg:grid-cols-2">
-            {/* Message List */}
-            <div className="card">
-              <div className="card-header">
-                <h2 className="heading-3 text-[#C8AA6E]">
-                  {activeTab === 'received' ? '받은 쪽지' : '보낸 쪽지'}
-                </h2>
-              </div>
-              <div className="card-body p-0">
-                {loading ? (
-                  <div className="p-8">
-                    <LoadingSpinner />
-                  </div>
-                ) : messages.length === 0 ? (
-                  <div className="text-center py-12">
-                    <div className="text-4xl mb-3">
-                      {activeTab === 'received' ? '📭' : '📤'}
-                    </div>
-                    <p className="text-[#A09B8C]">
-                      {activeTab === 'received'
-                        ? '받은 쪽지가 없습니다'
-                        : '보낸 쪽지가 없습니다'}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="max-h-[400px] overflow-y-auto">
-                    {messages.map((message) => (
-                      <MessageListItem
-                        key={message.id}
-                        message={message}
-                        type={activeTab}
-                        isSelected={selectedMessage?.id === message.id}
-                        onClick={() => handleSelectMessage(message)}
-                        onDelete={() => handleDeleteMessage(message.id)}
-                      />
-                    ))}
-                  </div>
+          <Tabs selectedIndex={activeTab === 'received' ? 0 : 1} onChange={handleTabChange}>
+            <TabList aria-label="쪽지함 탭" style={{ marginBottom: '1.5rem' }}>
+              <Tab>
+                📥 받은 쪽지
+                {activeTab === 'received' && messages.filter((m) => !m.isRead).length > 0 && (
+                  <span style={{
+                    marginLeft: '0.5rem',
+                    padding: '0.125rem 0.5rem',
+                    backgroundColor: '#da1e28',
+                    color: '#fff',
+                    fontSize: '0.75rem',
+                    borderRadius: '9999px',
+                  }}>
+                    {messages.filter((m) => !m.isRead).length}
+                  </span>
                 )}
-              </div>
-            </div>
-
-            {/* Message Detail */}
-            <div className="card">
-              <div className="card-header">
-                <h2 className="heading-3 text-[#C8AA6E]">쪽지 내용</h2>
-              </div>
-              <div className="card-body">
-                {selectedMessage ? (
-                  <MessageDetail
-                    message={selectedMessage}
-                    type={activeTab}
-                  />
-                ) : (
-                  <div className="text-center py-12">
-                    <div className="text-4xl mb-3">💌</div>
-                    <p className="text-[#A09B8C]">쪽지를 선택하세요</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+              </Tab>
+              <Tab>📤 보낸 쪽지</Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel style={{ padding: 0 }}>
+                <MessageContent
+                  activeTab={activeTab}
+                  messages={messages}
+                  loading={loading}
+                  selectedMessage={selectedMessage}
+                  onSelectMessage={handleSelectMessage}
+                  onDeleteMessage={handleDeleteMessage}
+                />
+              </TabPanel>
+              <TabPanel style={{ padding: 0 }}>
+                <MessageContent
+                  activeTab={activeTab}
+                  messages={messages}
+                  loading={loading}
+                  selectedMessage={selectedMessage}
+                  onSelectMessage={handleSelectMessage}
+                  onDeleteMessage={handleDeleteMessage}
+                />
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
         </div>
       </div>
+    </div>
+  )
+}
+
+function MessageContent({
+  activeTab,
+  messages,
+  loading,
+  selectedMessage,
+  onSelectMessage,
+  onDeleteMessage,
+}: {
+  activeTab: TabType
+  messages: Message[]
+  loading: boolean
+  selectedMessage: Message | null
+  onSelectMessage: (message: Message) => void
+  onDeleteMessage: (messageId: string) => void
+}) {
+  return (
+    <div style={{ display: 'grid', gap: '1.5rem', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
+      {/* Message List */}
+      <Tile style={{ padding: 0, background: '#262626' }}>
+        <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid #393939' }}>
+          <h2 style={{ fontSize: '1rem', fontWeight: 600, color: '#C8AA6E' }}>
+            {activeTab === 'received' ? '받은 쪽지' : '보낸 쪽지'}
+          </h2>
+        </div>
+        <div>
+          {loading ? (
+            <div style={{ padding: '2rem' }}>
+              <LoadingSpinner />
+            </div>
+          ) : messages.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '3rem 0' }}>
+              <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>
+                {activeTab === 'received' ? '📭' : '📤'}
+              </div>
+              <p style={{ color: '#c6c6c6' }}>
+                {activeTab === 'received'
+                  ? '받은 쪽지가 없습니다'
+                  : '보낸 쪽지가 없습니다'}
+              </p>
+            </div>
+          ) : (
+            <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+              {messages.map((message) => (
+                <MessageListItem
+                  key={message.id}
+                  message={message}
+                  type={activeTab}
+                  isSelected={selectedMessage?.id === message.id}
+                  onClick={() => onSelectMessage(message)}
+                  onDelete={() => onDeleteMessage(message.id)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </Tile>
+
+      {/* Message Detail */}
+      <Tile style={{ padding: 0, background: '#262626' }}>
+        <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid #393939' }}>
+          <h2 style={{ fontSize: '1rem', fontWeight: 600, color: '#C8AA6E' }}>쪽지 내용</h2>
+        </div>
+        <div style={{ padding: '1.5rem' }}>
+          {selectedMessage ? (
+            <MessageDetail
+              message={selectedMessage}
+              type={activeTab}
+            />
+          ) : (
+            <div style={{ textAlign: 'center', padding: '3rem 0' }}>
+              <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>💌</div>
+              <p style={{ color: '#c6c6c6' }}>쪽지를 선택하세요</p>
+            </div>
+          )}
+        </div>
+      </Tile>
     </div>
   )
 }
@@ -217,55 +252,76 @@ function MessageListItem({
   return (
     <div
       onClick={onClick}
-      className={`p-4 border-b border-[#1E2328] cursor-pointer transition-colors ${
-        isSelected
-          ? 'bg-[#C8AA6E]/10'
+      style={{
+        padding: '1rem',
+        borderBottom: '1px solid #393939',
+        cursor: 'pointer',
+        transition: 'background-color 0.15s',
+        backgroundColor: isSelected
+          ? 'rgba(200, 170, 110, 0.1)'
           : isUnread
-          ? 'bg-[#0AC8B9]/5 hover:bg-[#0AC8B9]/10'
-          : 'hover:bg-[#1E2328]'
-      }`}
+          ? 'rgba(10, 200, 185, 0.05)'
+          : 'transparent',
+      }}
+      onMouseEnter={(e) => {
+        if (!isSelected) {
+          e.currentTarget.style.backgroundColor = isUnread ? 'rgba(10, 200, 185, 0.1)' : '#393939'
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!isSelected) {
+          e.currentTarget.style.backgroundColor = isUnread ? 'rgba(10, 200, 185, 0.05)' : 'transparent'
+        }
+      }}
     >
-      <div className="flex items-start gap-3">
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
         <img
           src={message.senderPhotoURL || '/default-avatar.png'}
           alt={message.senderName}
-          className="avatar avatar-sm shrink-0"
-          style={{ borderColor: tierInfo.color }}
+          className="avatar avatar-sm"
+          style={{ borderColor: tierInfo.color, flexShrink: 0 }}
         />
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
             {isUnread && (
-              <span className="w-2 h-2 bg-[#0AC8B9] rounded-full shrink-0" />
+              <span style={{ width: '8px', height: '8px', backgroundColor: '#0AC8B9', borderRadius: '50%', flexShrink: 0 }} />
             )}
-            <span className="text-sm font-medium text-[#F0E6D2] truncate">
+            <span style={{ fontSize: '0.875rem', fontWeight: 500, color: '#f4f4f4', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {type === 'received' ? message.senderName : message.receiverName}
             </span>
-            <span className="text-xs" style={{ color: tierInfo.color }}>
+            <span style={{ fontSize: '0.75rem', color: tierInfo.color }}>
               {tierInfo.emoji}
             </span>
           </div>
           <p
-            className={`text-sm truncate mb-1 ${
-              isUnread ? 'text-[#F0E6D2] font-medium' : 'text-[#A09B8C]'
-            }`}
+            style={{
+              fontSize: '0.875rem',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              marginBottom: '0.25rem',
+              color: isUnread ? '#f4f4f4' : '#c6c6c6',
+              fontWeight: isUnread ? 500 : 400,
+            }}
           >
             {message.title}
           </p>
-          <span className="text-xs text-[#3C3C41]">
+          <span style={{ fontSize: '0.75rem', color: '#525252' }}>
             {message.createdAt.toLocaleString('ko-KR')}
           </span>
         </div>
-        <button
-          onClick={(e) => {
+        <Button
+          kind="danger--ghost"
+          size="sm"
+          hasIconOnly
+          renderIcon={TrashCan}
+          iconDescription="삭제"
+          onClick={(e: React.MouseEvent) => {
             e.stopPropagation()
             onDelete()
           }}
-          className="text-red-400/50 hover:text-red-400 transition-colors p-1"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-        </button>
+          style={{ color: 'rgba(250, 77, 86, 0.5)' }}
+        />
       </div>
     </div>
   )
@@ -283,21 +339,23 @@ function MessageDetail({
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center gap-3 mb-4 pb-4 border-b border-[#1E2328]">
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid #393939' }}>
         <img
           src={message.senderPhotoURL || '/default-avatar.png'}
           alt={message.senderName}
           className="avatar avatar-md"
           style={{ borderColor: tierInfo.color }}
         />
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="font-semibold text-[#F0E6D2]">
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+            <span style={{ fontWeight: 600, color: '#f4f4f4' }}>
               {type === 'received' ? message.senderName : message.receiverName}
             </span>
             <span
-              className="text-xs px-1.5 py-0.5 rounded"
               style={{
+                fontSize: '0.75rem',
+                padding: '0.125rem 0.375rem',
+                borderRadius: '4px',
                 backgroundColor: `${tierInfo.color}20`,
                 color: tierInfo.color,
               }}
@@ -305,17 +363,17 @@ function MessageDetail({
               {tierInfo.emoji} {tierInfo.name}
             </span>
           </div>
-          <span className="text-xs text-[#A09B8C]">
+          <span style={{ fontSize: '0.75rem', color: '#c6c6c6' }}>
             {message.createdAt.toLocaleString('ko-KR')}
           </span>
         </div>
       </div>
 
       {/* Title */}
-      <h3 className="text-lg font-semibold text-[#C8AA6E] mb-4">{message.title}</h3>
+      <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#C8AA6E', marginBottom: '1rem' }}>{message.title}</h3>
 
       {/* Content */}
-      <div className="text-[#F0E6D2]/90 whitespace-pre-wrap leading-relaxed min-h-[150px]">
+      <div style={{ color: 'rgba(244, 244, 244, 0.9)', whiteSpace: 'pre-wrap', lineHeight: 1.6, minHeight: '150px' }}>
         {message.content}
       </div>
     </div>

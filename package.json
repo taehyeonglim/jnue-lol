@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/taehyeonglim/jnue-lol#readme",
   "dependencies": {
-    "@tailwindcss/postcss": "^4.1.18",
+    "@carbon/react": "^1.71.0",
     "@vitejs/plugin-react": "^5.1.2",
     "firebase": "^12.7.0",
     "react": "^19.2.3",
@@ -36,9 +36,7 @@
   "devDependencies": {
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
-    "autoprefixer": "^10.4.23",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.18",
+    "sass": "^1.86.0",
     "typescript": "^5.9.3"
   }
 }

@@ -6,6 +6,14 @@ import { getUserById } from '../services/messageService'
 import { Post, Comment, User, POINT_VALUES, TIER_INFO } from '../types'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import SendMessageModal from '../components/common/SendMessageModal'
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  Tile,
+  TextArea,
+  Button,
+} from '@carbon/react'
+import { Email, Edit, TrashCan, FavoriteFilled, Favorite, Chat } from '@carbon/icons-react'
 
 export default function PostDetail() {
   const { id } = useParams<{ id: string }>()
@@ -133,16 +141,14 @@ export default function PostDetail() {
 
   if (!post) {
     return (
-      <div className="section">
-        <div className="container-xs">
-          <div className="card text-center py-16">
-            <div className="text-5xl mb-4">😢</div>
-            <p className="text-[#A09B8C] mb-6">게시글을 찾을 수 없습니다</p>
-            <button onClick={() => navigate(-1)} className="btn btn-secondary">
-              돌아가기
-            </button>
-          </div>
-        </div>
+      <div className="page-container-xs" style={{ paddingTop: '2rem' }}>
+        <Tile style={{ textAlign: 'center', padding: '4rem 2rem', backgroundColor: '#262626' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>😢</div>
+          <p style={{ color: '#c6c6c6', marginBottom: '1.5rem' }}>게시글을 찾을 수 없습니다</p>
+          <Button kind="secondary" onClick={() => navigate(-1)}>
+            돌아가기
+          </Button>
+        </Tile>
       </div>
     )
   }
@@ -154,176 +160,218 @@ export default function PostDetail() {
   const tierInfo = TIER_INFO[post.authorTier] || TIER_INFO.bronze
 
   return (
-    <div className="section">
-      <div className="container-sm">
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-sm text-[#A09B8C] mb-6">
-          <Link to="/" className="hover:text-[#C8AA6E] transition-colors">홈</Link>
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-          <Link to={categoryInfo.link} className="hover:text-[#C8AA6E] transition-colors flex items-center gap-1">
-            <span>{categoryInfo.icon}</span>
-            <span>{categoryInfo.label}</span>
-          </Link>
-        </nav>
+    <div className="page-container-sm" style={{ paddingTop: '2rem' }}>
+      {/* Breadcrumb */}
+      <Breadcrumb noTrailingSlash style={{ marginBottom: '1.5rem' }}>
+        <BreadcrumbItem>
+          <Link to="/">홈</Link>
+        </BreadcrumbItem>
+        <BreadcrumbItem>
+          <Link to={categoryInfo.link}>{categoryInfo.icon} {categoryInfo.label}</Link>
+        </BreadcrumbItem>
+      </Breadcrumb>
 
-        {/* Post Content */}
-        <article className="card mb-6">
-          <div className="card-body">
-            {/* Author Info */}
-            <div className="flex items-start justify-between gap-4 mb-6">
-              <div className="flex items-center gap-3">
-                <img
-                  src={post.authorPhotoURL || '/default-avatar.png'}
-                  alt={post.authorName}
-                  className="avatar avatar-md"
-                  style={{ borderColor: tierInfo.color }}
-                />
-                <div>
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="font-semibold text-[#F0E6D2]">{post.authorName}</span>
-                    <span
-                      className="text-xs font-medium px-1.5 py-0.5 rounded"
-                      style={{
-                        backgroundColor: `${tierInfo.color}20`,
-                        color: tierInfo.color,
-                      }}
-                    >
-                      {tierInfo.emoji} {tierInfo.name}
-                    </span>
-                  </div>
-                  <span className="text-xs text-[#A09B8C]">
-                    {post.createdAt.toLocaleString('ko-KR')}
+      {/* Post Content */}
+      <Tile style={{ backgroundColor: '#262626', padding: 0, marginBottom: '1.5rem' }}>
+        <div style={{ padding: '1.5rem' }}>
+          {/* Author Info */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <img
+                src={post.authorPhotoURL || '/default-avatar.png'}
+                alt={post.authorName}
+                className="avatar avatar-md"
+                style={{ borderColor: tierInfo.color }}
+              />
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.125rem' }}>
+                  <span style={{ fontWeight: 600, color: '#f4f4f4' }}>{post.authorName}</span>
+                  <span
+                    style={{
+                      fontSize: '0.75rem',
+                      fontWeight: 500,
+                      padding: '0.125rem 0.375rem',
+                      borderRadius: '4px',
+                      backgroundColor: `${tierInfo.color}20`,
+                      color: tierInfo.color,
+                    }}
+                  >
+                    {tierInfo.emoji} {tierInfo.name}
                   </span>
                 </div>
+                <span style={{ fontSize: '0.75rem', color: '#c6c6c6' }}>
+                  {post.createdAt.toLocaleString('ko-KR')}
+                </span>
               </div>
-
-              {(isAuthor || isAdmin) && (
-                <div className="flex items-center gap-2">
-                  {isAuthor && (
-                    <Link
-                      to={`/edit/${post.id}`}
-                      className="text-xs text-[#A09B8C] hover:text-[#C8AA6E] transition-colors px-2 py-1"
-                    >
-                      수정
-                    </Link>
-                  )}
-                  <button
-                    onClick={handleDeletePost}
-                    className="text-xs text-red-400/70 hover:text-red-400 transition-colors px-2 py-1"
-                  >
-                    삭제
-                  </button>
-                </div>
-              )}
             </div>
 
-            {/* Title & Content */}
-            <h1 className="heading-2 text-[#C8AA6E] mb-4">{post.title}</h1>
-            <div className="text-[#F0E6D2]/90 whitespace-pre-wrap leading-relaxed mb-4">{post.content}</div>
-
-            {/* Post Image */}
-            {post.imageURL && (
-              <div className="mt-4">
-                <img
-                  src={post.imageURL}
-                  alt="첨부 이미지"
-                  className="w-full max-h-[500px] object-contain rounded-lg border border-[#3C3C41] bg-[#010A13] cursor-pointer hover:opacity-90 transition-opacity"
-                  onClick={() => window.open(post.imageURL, '_blank')}
-                />
-              </div>
-            )}
-
-            {/* Actions */}
-            <div className="flex items-center gap-4 mt-8 pt-5 border-t border-[#1E2328]">
-              <button
-                onClick={handleLike}
-                disabled={!currentUser}
-                className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-all ${
-                  isLiked
-                    ? 'bg-red-500/15 text-red-400 border border-red-400/30'
-                    : 'bg-[#010A13] text-[#A09B8C] border border-[#3C3C41] hover:border-[#C8AA6E] hover:text-[#F0E6D2]'
-                }`}
-              >
-                <span>{isLiked ? '❤️' : '🤍'}</span>
-                <span>좋아요 {post.likes.length}</span>
-              </button>
-              <span className="text-sm text-[#A09B8C]">
-                💬 댓글 {post.comments.length}개
-              </span>
-              {currentUser && !isAuthor && (
-                <button
-                  onClick={() => handleSendMessage(post.authorId)}
-                  className="flex items-center gap-2 px-4 py-2 rounded text-sm font-medium bg-[#010A13] text-[#A09B8C] border border-[#3C3C41] hover:border-[#C8AA6E] hover:text-[#F0E6D2] transition-all ml-auto"
+            {(isAuthor || isAdmin) && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                {isAuthor && (
+                  <Button
+                    kind="ghost"
+                    size="sm"
+                    as={Link}
+                    to={`/edit/${post.id}`}
+                    renderIcon={Edit}
+                  >
+                    수정
+                  </Button>
+                )}
+                <Button
+                  kind="danger--ghost"
+                  size="sm"
+                  onClick={handleDeletePost}
+                  renderIcon={TrashCan}
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                  <span>쪽지</span>
-                </button>
-              )}
+                  삭제
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Title & Content */}
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 600, color: '#f4f4f4', marginBottom: '1rem' }}>
+            {post.title}
+          </h1>
+          <div className="post-content" style={{ color: 'rgba(244,244,244,0.9)', whiteSpace: 'pre-wrap', lineHeight: 1.7, marginBottom: '1rem' }}>
+            {post.content}
+          </div>
+
+          {/* Post Image */}
+          {post.imageURL && (
+            <div style={{ marginTop: '1rem' }}>
+              <img
+                src={post.imageURL}
+                alt="첨부 이미지"
+                style={{
+                  width: '100%',
+                  maxHeight: '500px',
+                  objectFit: 'contain',
+                  borderRadius: '8px',
+                  border: '1px solid #393939',
+                  backgroundColor: '#161616',
+                  cursor: 'pointer',
+                }}
+                onClick={() => window.open(post.imageURL, '_blank')}
+              />
             </div>
-          </div>
-        </article>
+          )}
 
-        {/* Comments Section */}
-        <section className="card">
-          <div className="card-header">
-            <h2 className="heading-3 text-[#C8AA6E] flex items-center gap-2">
-              <span>💬</span>
-              <span>댓글</span>
-              <span className="text-sm font-normal text-[#A09B8C]">({post.comments.length})</span>
-            </h2>
+          {/* Actions */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1rem',
+            marginTop: '2rem',
+            paddingTop: '1.25rem',
+            borderTop: '1px solid #393939',
+          }}>
+            <Button
+              kind={isLiked ? 'danger' : 'ghost'}
+              size="md"
+              onClick={handleLike}
+              disabled={!currentUser}
+              renderIcon={isLiked ? FavoriteFilled : Favorite}
+            >
+              좋아요 {post.likes.length}
+            </Button>
+            <span style={{ fontSize: '0.875rem', color: '#c6c6c6', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+              <Chat size={16} /> 댓글 {post.comments.length}개
+            </span>
+            {currentUser && !isAuthor && (
+              <Button
+                kind="ghost"
+                size="md"
+                onClick={() => handleSendMessage(post.authorId)}
+                renderIcon={Email}
+                style={{ marginLeft: 'auto' }}
+              >
+                쪽지
+              </Button>
+            )}
           </div>
-          <div className="card-body">
-            {/* Comment Form */}
-            {currentUser ? (
-              <form onSubmit={handleComment} className="mb-6">
-                <textarea
-                  value={commentText}
-                  onChange={(e) => setCommentText(e.target.value)}
-                  placeholder={`댓글을 작성하세요 (+${POINT_VALUES.COMMENT}P)`}
-                  className="input textarea"
-                  maxLength={500}
+        </div>
+      </Tile>
+
+      {/* Comments Section */}
+      <Tile style={{ backgroundColor: '#262626', padding: 0 }}>
+        {/* Comments Header */}
+        <div style={{
+          padding: '1rem 1.5rem',
+          borderBottom: '1px solid #393939',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+        }}>
+          <Chat size={20} style={{ color: '#f4f4f4' }} />
+          <h2 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#f4f4f4', margin: 0 }}>
+            댓글
+          </h2>
+          <span style={{ fontSize: '0.875rem', fontWeight: 400, color: '#c6c6c6' }}>
+            ({post.comments.length})
+          </span>
+        </div>
+
+        <div style={{ padding: '1.5rem' }}>
+          {/* Comment Form */}
+          {currentUser ? (
+            <form onSubmit={handleComment} style={{ marginBottom: '1.5rem' }}>
+              <TextArea
+                id="comment-text"
+                labelText=""
+                hideLabel
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder={`댓글을 작성하세요 (+${POINT_VALUES.COMMENT}P)`}
+                maxLength={500}
+                rows={3}
+                light={false}
+              />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.75rem' }}>
+                <span style={{ fontSize: '0.75rem', color: '#c6c6c6' }}>{commentText.length}/500</span>
+                <Button
+                  kind="primary"
+                  size="sm"
+                  type="submit"
+                  disabled={!commentText.trim() || submitting}
+                >
+                  {submitting ? '작성 중...' : '댓글 작성'}
+                </Button>
+              </div>
+            </form>
+          ) : (
+            <div style={{
+              marginBottom: '1.5rem',
+              padding: '1rem',
+              backgroundColor: '#161616',
+              borderRadius: '4px',
+              border: '1px solid #393939',
+              textAlign: 'center',
+            }}>
+              <p style={{ fontSize: '0.875rem', color: '#c6c6c6', margin: 0 }}>댓글을 작성하려면 로그인하세요</p>
+            </div>
+          )}
+
+          {/* Comments List */}
+          {post.comments.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '2rem 0' }}>
+              <p style={{ fontSize: '0.875rem', color: '#c6c6c6', margin: 0 }}>아직 댓글이 없습니다</p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {post.comments.map((comment) => (
+                <CommentItem
+                  key={comment.id}
+                  comment={comment}
+                  canDelete={currentUser?.uid === comment.authorId || isAdmin}
+                  onDelete={() => handleDeleteComment(comment)}
                 />
-                <div className="flex items-center justify-between mt-3">
-                  <span className="text-xs text-[#A09B8C]">{commentText.length}/500</span>
-                  <button
-                    type="submit"
-                    disabled={!commentText.trim() || submitting}
-                    className="btn btn-primary btn-sm"
-                  >
-                    {submitting ? '작성 중...' : '댓글 작성'}
-                  </button>
-                </div>
-              </form>
-            ) : (
-              <div className="mb-6 p-4 bg-[#010A13] rounded border border-[#1E2328] text-center">
-                <p className="text-sm text-[#A09B8C]">댓글을 작성하려면 로그인하세요</p>
-              </div>
-            )}
-
-            {/* Comments List */}
-            {post.comments.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-sm text-[#A09B8C]">아직 댓글이 없습니다</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {post.comments.map((comment) => (
-                  <CommentItem
-                    key={comment.id}
-                    comment={comment}
-                    canDelete={currentUser?.uid === comment.authorId || isAdmin}
-                    onDelete={() => handleDeleteComment(comment)}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
-      </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </Tile>
 
       {/* Send Message Modal */}
       {messageTarget && (
@@ -353,32 +401,43 @@ function CommentItem({
   const tierInfo = TIER_INFO[comment.authorTier] || TIER_INFO.bronze
 
   return (
-    <div className="flex gap-3 p-4 bg-[#010A13] rounded border border-[#1E2328]">
+    <div style={{
+      display: 'flex',
+      gap: '0.75rem',
+      padding: '1rem',
+      backgroundColor: '#161616',
+      borderRadius: '4px',
+      border: '1px solid #393939',
+    }}>
       <img
         src={comment.authorPhotoURL || '/default-avatar.png'}
         alt={comment.authorName}
-        className="avatar avatar-sm shrink-0"
-        style={{ borderColor: tierInfo.color }}
+        className="avatar avatar-sm"
+        style={{ borderColor: tierInfo.color, flexShrink: 0 }}
       />
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-          <span className="text-sm font-medium text-[#F0E6D2]">{comment.authorName}</span>
-          <span className="text-xs" style={{ color: tierInfo.color }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.375rem', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '0.875rem', fontWeight: 500, color: '#f4f4f4' }}>{comment.authorName}</span>
+          <span style={{ fontSize: '0.75rem', color: tierInfo.color }}>
             {tierInfo.emoji}
           </span>
-          <span className="text-xs text-[#A09B8C]">
+          <span style={{ fontSize: '0.75rem', color: '#c6c6c6' }}>
             {createdAt.toLocaleString('ko-KR')}
           </span>
           {canDelete && (
-            <button
+            <Button
+              kind="danger--ghost"
+              size="sm"
               onClick={onDelete}
-              className="ml-auto text-xs text-red-400/60 hover:text-red-400 transition-colors"
+              style={{ marginLeft: 'auto', minHeight: 'auto', padding: '0.125rem 0.5rem' }}
             >
               삭제
-            </button>
+            </Button>
           )}
         </div>
-        <p className="text-sm text-[#F0E6D2]/80 leading-relaxed">{comment.content}</p>
+        <p style={{ fontSize: '0.875rem', color: 'rgba(244,244,244,0.8)', lineHeight: 1.6, margin: 0 }}>
+          {comment.content}
+        </p>
       </div>
     </div>
   )

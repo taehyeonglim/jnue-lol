@@ -4,6 +4,16 @@ import { useAuth } from '../contexts/AuthContext'
 import { getPost, updatePost, uploadPostImage } from '../services/postService'
 import { Post } from '../types'
 import LoadingSpinner from '../components/common/LoadingSpinner'
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  Tile,
+  TextInput,
+  TextArea,
+  Button,
+  InlineNotification,
+} from '@carbon/react'
+import { Close, Image } from '@carbon/icons-react'
 
 export default function EditPost() {
   const { id } = useParams<{ id: string }>()
@@ -144,32 +154,28 @@ export default function EditPost() {
 
   if (!post) {
     return (
-      <div className="section">
-        <div className="container-xs">
-          <div className="card text-center py-16">
-            <div className="text-5xl mb-4">😢</div>
-            <p className="text-[#A09B8C] mb-6">게시글을 찾을 수 없습니다</p>
-            <button onClick={() => navigate(-1)} className="btn btn-secondary">
-              돌아가기
-            </button>
-          </div>
-        </div>
+      <div className="page-container-xs" style={{ paddingTop: '2rem' }}>
+        <Tile style={{ textAlign: 'center', padding: '4rem 2rem', backgroundColor: '#262626' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>😢</div>
+          <p style={{ color: '#c6c6c6', marginBottom: '1.5rem' }}>게시글을 찾을 수 없습니다</p>
+          <Button kind="secondary" onClick={() => navigate(-1)}>
+            돌아가기
+          </Button>
+        </Tile>
       </div>
     )
   }
 
   if (!currentUser || currentUser.uid !== post.authorId) {
     return (
-      <div className="section">
-        <div className="container-xs">
-          <div className="card text-center py-16">
-            <div className="text-5xl mb-4">🔒</div>
-            <p className="text-[#A09B8C] mb-6">수정 권한이 없습니다</p>
-            <button onClick={() => navigate(-1)} className="btn btn-secondary">
-              돌아가기
-            </button>
-          </div>
-        </div>
+      <div className="page-container-xs" style={{ paddingTop: '2rem' }}>
+        <Tile style={{ textAlign: 'center', padding: '4rem 2rem', backgroundColor: '#262626' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔒</div>
+          <p style={{ color: '#c6c6c6', marginBottom: '1.5rem' }}>수정 권한이 없습니다</p>
+          <Button kind="secondary" onClick={() => navigate(-1)}>
+            돌아가기
+          </Button>
+        </Tile>
       </div>
     )
   }
@@ -177,141 +183,166 @@ export default function EditPost() {
   const categoryInfo = getCategoryInfo(post.category)
 
   return (
-    <div className="section">
-      <div className="container-sm">
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-sm text-[#A09B8C] mb-6">
-          <Link to="/" className="hover:text-[#C8AA6E] transition-colors">홈</Link>
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-          <Link to={categoryInfo.link} className="hover:text-[#C8AA6E] transition-colors flex items-center gap-1">
-            <span>{categoryInfo.icon}</span>
-            <span>{categoryInfo.label}</span>
-          </Link>
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-          <span>수정</span>
-        </nav>
+    <div className="page-container-sm" style={{ paddingTop: '2rem' }}>
+      {/* Breadcrumb */}
+      <Breadcrumb noTrailingSlash style={{ marginBottom: '1.5rem' }}>
+        <BreadcrumbItem>
+          <Link to="/">홈</Link>
+        </BreadcrumbItem>
+        <BreadcrumbItem>
+          <Link to={categoryInfo.link}>{categoryInfo.icon} {categoryInfo.label}</Link>
+        </BreadcrumbItem>
+        <BreadcrumbItem isCurrentPage>수정</BreadcrumbItem>
+      </Breadcrumb>
 
-        <div className="card">
-          {/* Header */}
-          <div className="card-header">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">✏️</span>
-              <h1 className="heading-3 text-[#C8AA6E]">글 수정</h1>
-            </div>
-          </div>
-
-          <div className="card-body">
-            {error && (
-              <div className="mb-5 p-4 bg-red-500/10 border border-red-500/20 rounded text-sm text-red-400 flex items-center gap-2">
-                <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>{error}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit}>
-              <div className="mb-5">
-                <label htmlFor="title" className="block text-sm font-medium text-[#F0E6D2] mb-2">
-                  제목
-                </label>
-                <input
-                  type="text"
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="input"
-                  maxLength={100}
-                />
-              </div>
-
-              <div className="mb-6">
-                <label htmlFor="content" className="block text-sm font-medium text-[#F0E6D2] mb-2">
-                  내용
-                </label>
-                <textarea
-                  id="content"
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  onPaste={handlePaste}
-                  className="input textarea h-64"
-                  maxLength={5000}
-                />
-                <div className="flex justify-between mt-2">
-                  <span className="text-xs text-[#3C3C41]">Ctrl+V로 이미지 붙여넣기 가능</span>
-                  <span className="text-xs text-[#A09B8C]">{content.length} / 5000</span>
-                </div>
-              </div>
-
-              {/* Image Upload */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-[#F0E6D2] mb-2">
-                  이미지 첨부 <span className="text-[#A09B8C] font-normal">(선택)</span>
-                </label>
-
-                {imagePreview ? (
-                  <div className="relative">
-                    <img
-                      src={imagePreview}
-                      alt="미리보기"
-                      className="w-full max-h-80 object-contain rounded border border-[#3C3C41] bg-[#010A13]"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleRemoveImage}
-                      className="absolute top-2 right-2 w-8 h-8 bg-red-500/80 hover:bg-red-500 rounded-full flex items-center justify-center transition-colors"
-                    >
-                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                ) : (
-                  <div
-                    onClick={() => fileInputRef.current?.click()}
-                    className="border-2 border-dashed border-[#3C3C41] rounded-lg p-8 text-center cursor-pointer hover:border-[#C8AA6E]/50 transition-colors"
-                  >
-                    <svg className="w-10 h-10 mx-auto mb-3 text-[#3C3C41]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <p className="text-sm text-[#A09B8C] mb-1">클릭하여 이미지 업로드</p>
-                    <p className="text-xs text-[#3C3C41]">PNG, JPG, GIF (최대 5MB)</p>
-                  </div>
-                )}
-
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                />
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => navigate(-1)}
-                  className="flex-1 btn btn-secondary"
-                >
-                  취소
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex-1 btn btn-primary"
-                >
-                  {submitting ? '수정 중...' : '수정하기'}
-                </button>
-              </div>
-            </form>
-          </div>
+      <Tile style={{ backgroundColor: '#262626', padding: 0 }}>
+        {/* Header */}
+        <div style={{
+          padding: '1rem 1.5rem',
+          borderBottom: '1px solid #393939',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.75rem',
+        }}>
+          <span style={{ fontSize: '1.5rem' }}>✏️</span>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#f4f4f4', margin: 0 }}>
+            글 수정
+          </h1>
         </div>
-      </div>
+
+        {/* Body */}
+        <div style={{ padding: '1.5rem' }}>
+          {error && (
+            <div style={{ marginBottom: '1.25rem' }}>
+              <InlineNotification
+                kind="error"
+                title={error}
+                hideCloseButton
+                lowContrast
+              />
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit}>
+            <div style={{ marginBottom: '1.25rem' }}>
+              <TextInput
+                id="title"
+                labelText="제목"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                maxLength={100}
+                light={false}
+              />
+            </div>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <TextArea
+                id="content"
+                labelText="내용"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                onPaste={handlePaste}
+                maxLength={5000}
+                rows={12}
+                light={false}
+              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem' }}>
+                <span style={{ fontSize: '0.75rem', color: '#525252' }}>Ctrl+V로 이미지 붙여넣기 가능</span>
+                <span style={{ fontSize: '0.75rem', color: '#c6c6c6' }}>{content.length} / 5000</span>
+              </div>
+            </div>
+
+            {/* Image Upload */}
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 400, color: '#c6c6c6', marginBottom: '0.5rem' }}>
+                이미지 첨부 <span style={{ color: '#6f6f6f' }}>(선택)</span>
+              </label>
+
+              {imagePreview ? (
+                <div style={{ position: 'relative' }}>
+                  <img
+                    src={imagePreview}
+                    alt="미리보기"
+                    style={{
+                      width: '100%',
+                      maxHeight: '20rem',
+                      objectFit: 'contain',
+                      borderRadius: '4px',
+                      border: '1px solid #393939',
+                      backgroundColor: '#161616',
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    style={{
+                      position: 'absolute',
+                      top: '0.5rem',
+                      right: '0.5rem',
+                      width: '2rem',
+                      height: '2rem',
+                      backgroundColor: 'rgba(218, 30, 40, 0.8)',
+                      border: 'none',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      color: '#fff',
+                    }}
+                  >
+                    <Close size={16} />
+                  </button>
+                </div>
+              ) : (
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  style={{
+                    border: '2px dashed #393939',
+                    borderRadius: '8px',
+                    padding: '2rem',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    transition: 'border-color 0.2s',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#525252')}
+                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#393939')}
+                >
+                  <Image size={40} style={{ margin: '0 auto 0.75rem', color: '#525252' }} />
+                  <p style={{ fontSize: '0.875rem', color: '#c6c6c6', marginBottom: '0.25rem' }}>클릭하여 이미지 업로드</p>
+                  <p style={{ fontSize: '0.75rem', color: '#525252' }}>PNG, JPG, GIF (최대 5MB)</p>
+                </div>
+              )}
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                style={{ display: 'none' }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <Button
+                kind="secondary"
+                onClick={() => navigate(-1)}
+                style={{ flex: 1 }}
+              >
+                취소
+              </Button>
+              <Button
+                kind="primary"
+                type="submit"
+                disabled={submitting}
+                style={{ flex: 1 }}
+              >
+                {submitting ? '수정 중...' : '수정하기'}
+              </Button>
+            </div>
+          </form>
+        </div>
+      </Tile>
     </div>
   )
 }

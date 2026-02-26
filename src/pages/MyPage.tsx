@@ -7,6 +7,8 @@ import { useAuth } from '../contexts/AuthContext'
 import { getUserPosts } from '../services/postService'
 import { Post, TIER_INFO, TIER_THRESHOLDS, TierType } from '../types'
 import LoadingSpinner from '../components/common/LoadingSpinner'
+import { Tile, Tag, Button, TextInput, Tabs, TabList, Tab, TabPanels, TabPanel } from '@carbon/react'
+import { Camera } from '@carbon/icons-react'
 
 const POSITIONS = ['탑', '정글', '미드', '원딜', '서포터']
 
@@ -16,7 +18,6 @@ export default function MyPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
-  const [activeTab, setActiveTab] = useState<'profile' | 'posts'>('profile')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [nickname, setNickname] = useState('')
@@ -142,15 +143,15 @@ export default function MyPage() {
 
   if (!currentUser) {
     return (
-      <div className="section">
-        <div className="container-xs">
-          <div className="card text-center py-16">
-            <div className="text-5xl mb-4">🔒</div>
-            <p className="text-[#A09B8C] mb-6">로그인이 필요합니다</p>
-            <Link to="/" className="btn btn-primary">
-              홈으로 가기
+      <div style={{ padding: '2rem 0' }}>
+        <div className="page-container-xs">
+          <Tile style={{ textAlign: 'center', padding: '4rem 1rem', background: '#262626' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔒</div>
+            <p style={{ color: '#c6c6c6', marginBottom: '1.5rem' }}>로그인이 필요합니다</p>
+            <Link to="/">
+              <Button kind="primary">홈으로 가기</Button>
             </Link>
-          </div>
+          </Tile>
         </div>
       </div>
     )
@@ -171,7 +172,7 @@ export default function MyPage() {
         ref={fileInputRef}
         onChange={handlePhotoChange}
         accept="image/*"
-        className="hidden"
+        style={{ display: 'none' }}
       />
 
       {/* Page Header */}
@@ -182,13 +183,20 @@ export default function MyPage() {
         </div>
       </div>
 
-      <div className="section">
-        <div className="container-sm">
+      <div style={{ padding: '2rem 0' }}>
+        <div className="page-container-sm">
           {/* Profile Header Card */}
-          <div className="card card-gold p-6 mb-6">
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
+          <Tile
+            style={{
+              padding: '1.5rem',
+              marginBottom: '1.5rem',
+              border: `1px solid ${tierInfo.color}40`,
+              background: '#262626',
+            }}
+          >
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.25rem' }}>
               {/* Avatar */}
-              <div className="relative group shrink-0">
+              <div style={{ position: 'relative', flexShrink: 0 }}>
                 <img
                   src={currentUser.photoURL || '/default-avatar.png'}
                   alt={displayNickname}
@@ -196,81 +204,110 @@ export default function MyPage() {
                   style={{ borderColor: tierInfo.color }}
                 />
                 <div
-                  className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center text-lg"
-                  style={{ backgroundColor: tierInfo.color }}
+                  style={{
+                    position: 'absolute',
+                    bottom: '-4px',
+                    right: '-4px',
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '1.125rem',
+                    backgroundColor: tierInfo.color,
+                  }}
                 >
                   {tierInfo.emoji}
                 </div>
                 <button
                   onClick={handlePhotoClick}
                   disabled={uploadingPhoto}
-                  className="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer disabled:cursor-wait"
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    backgroundColor: 'rgba(0,0,0,0.6)',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    opacity: 0,
+                    transition: 'opacity 0.2s',
+                    cursor: uploadingPhoto ? 'wait' : 'pointer',
+                    border: 'none',
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.opacity = '1' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.opacity = '0' }}
                 >
                   {uploadingPhoto ? (
-                    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <div style={{ width: '24px', height: '24px', border: '2px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
                   ) : (
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
+                    <Camera size={24} style={{ color: '#fff' }} />
                   )}
                 </button>
               </div>
 
               {/* User Info */}
-              <div className="flex-1 text-center sm:text-left min-w-0">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
-                  <h1 className="text-xl font-bold text-[#F0E6D2]">{displayNickname}</h1>
-                  <div className="flex items-center justify-center sm:justify-start gap-2">
-                    <span
-                      className="text-xs font-medium px-2 py-0.5 rounded"
+              <div style={{ flex: 1, textAlign: 'center', minWidth: 0 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                  <h1 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#f4f4f4' }}>{displayNickname}</h1>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                    <Tag
+                      size="sm"
+                      type="outline"
                       style={{
                         backgroundColor: `${tierInfo.color}20`,
                         color: tierInfo.color,
+                        borderColor: tierInfo.color,
                       }}
                     >
                       {tierInfo.emoji} {tierInfo.name}
-                    </span>
+                    </Tag>
                     {currentUser.isAdmin && (
-                      <span className="badge badge-blue">관리자</span>
+                      <Tag size="sm" type="blue">관리자</Tag>
                     )}
                   </div>
                 </div>
 
-                <p className="text-sm text-[#A09B8C] mb-3">{currentUser.email}</p>
+                <p style={{ fontSize: '0.875rem', color: '#c6c6c6', marginBottom: '0.75rem' }}>{currentUser.email}</p>
 
                 {(currentUser.lolNickname || currentUser.mainPosition) && (
-                  <div className="flex flex-wrap justify-center sm:justify-start gap-2 mb-3">
+                  <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
                     {currentUser.lolNickname && (
-                      <span className="badge badge-blue">🎮 {currentUser.lolNickname}</span>
+                      <Tag size="sm" type="blue">🎮 {currentUser.lolNickname}</Tag>
                     )}
                     {currentUser.mainPosition && (
-                      <span className="badge badge-gold">🏆 {currentUser.mainPosition}</span>
+                      <Tag size="sm" type="warm-gray" style={{ backgroundColor: '#C8AA6E20', color: '#C8AA6E' }}>
+                        🏆 {currentUser.mainPosition}
+                      </Tag>
                     )}
                   </div>
                 )}
 
                 {/* Points & Progress */}
-                <div className="flex items-center justify-center sm:justify-start gap-3 mb-3">
-                  <span className="text-2xl font-bold text-[#C8AA6E]">{currentUser.points}P</span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                  <span style={{ fontSize: '1.5rem', fontWeight: 700, color: '#C8AA6E' }}>{currentUser.points}P</span>
                   {nextTierInfo && (
-                    <span className="text-xs text-[#A09B8C]">
+                    <span style={{ fontSize: '0.75rem', color: '#c6c6c6' }}>
                       {TIER_INFO[nextTierInfo.tier].emoji} {nextTierInfo.pointsNeeded}P 남음
                     </span>
                   )}
                 </div>
 
                 {nextTierInfo && (
-                  <div className="max-w-xs mx-auto sm:mx-0">
-                    <div className="progress">
+                  <div style={{ maxWidth: '320px', margin: '0 auto' }}>
+                    <div style={{ height: '8px', backgroundColor: '#393939', borderRadius: '4px', overflow: 'hidden' }}>
                       <div
-                        className="progress-fill"
                         style={{
+                          height: '100%',
                           width: `${Math.min(
                             ((currentUser.points - TIER_THRESHOLDS[currentUser.tier].min) /
                               (TIER_THRESHOLDS[nextTierInfo.tier].min - TIER_THRESHOLDS[currentUser.tier].min)) * 100,
                             100
                           )}%`,
+                          background: 'linear-gradient(90deg, #C8AA6E, #F0E6D2)',
+                          borderRadius: '4px',
+                          transition: 'width 0.3s ease',
                         }}
                       />
                     </div>
@@ -278,174 +315,178 @@ export default function MyPage() {
                 )}
               </div>
             </div>
-          </div>
+          </Tile>
 
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-4 mb-6">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
             <StatCard label="작성글" value={posts.length} icon="📝" />
             <StatCard label="받은 좋아요" value={posts.reduce((sum, post) => sum + post.likes.length, 0)} icon="❤️" />
             <StatCard label="받은 댓글" value={posts.reduce((sum, post) => sum + post.comments.length, 0)} icon="💬" />
           </div>
 
           {/* Tabs */}
-          <div className="tabs mb-6">
-            <button
-              onClick={() => setActiveTab('profile')}
-              className={`tab ${activeTab === 'profile' ? 'tab-active' : ''}`}
-            >
-              회원정보 수정
-            </button>
-            <button
-              onClick={() => setActiveTab('posts')}
-              className={`tab ${activeTab === 'posts' ? 'tab-active' : ''}`}
-            >
-              내가 쓴 글 ({posts.length})
-            </button>
-          </div>
-
-          {/* Tab Content */}
-          {activeTab === 'profile' ? (
-            <div className="card">
-              <div className="card-header">
-                <h2 className="heading-3 text-[#C8AA6E] flex items-center gap-2">
-                  <span>⚙️</span>
-                  <span>회원정보 수정</span>
-                </h2>
-              </div>
-              <div className="card-body">
-                <div className="space-y-5 max-w-md">
-                  <div className="p-4 bg-[#0AC8B9]/10 border border-[#0AC8B9]/20 rounded text-sm text-[#0AC8B9]">
-                    💡 프로필 사진을 변경하려면 위의 프로필 이미지에 마우스를 올려보세요!
+          <Tabs>
+            <TabList aria-label="마이페이지 탭" style={{ marginBottom: '1.5rem' }}>
+              <Tab>회원정보 수정</Tab>
+              <Tab>내가 쓴 글 ({posts.length})</Tab>
+            </TabList>
+            <TabPanels>
+              {/* Profile Tab */}
+              <TabPanel>
+                <Tile style={{ background: '#262626', padding: 0 }}>
+                  <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid #393939' }}>
+                    <h2 style={{ fontSize: '1rem', fontWeight: 600, color: '#C8AA6E', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <span>⚙️</span>
+                      <span>회원정보 수정</span>
+                    </h2>
                   </div>
+                  <div style={{ padding: '1.5rem' }}>
+                    <div style={{ maxWidth: '28rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                      <div style={{ padding: '1rem', backgroundColor: 'rgba(10, 200, 185, 0.1)', border: '1px solid rgba(10, 200, 185, 0.2)', borderRadius: '4px', fontSize: '0.875rem', color: '#0AC8B9' }}>
+                        💡 프로필 사진을 변경하려면 위의 프로필 이미지에 마우스를 올려보세요!
+                      </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-[#F0E6D2] mb-2">
-                      닉네임 <span className="text-red-400">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={nickname}
-                      onChange={(e) => setNickname(e.target.value)}
-                      placeholder="사이트에서 사용할 닉네임"
-                      className="input"
-                      maxLength={20}
-                    />
-                    <p className="text-xs text-[#A09B8C] mt-1.5">다른 회원들에게 보여지는 이름입니다.</p>
-                  </div>
+                      <TextInput
+                        id="nickname"
+                        labelText={<span>닉네임 <span style={{ color: '#fa4d56' }}>*</span></span>}
+                        value={nickname}
+                        onChange={(e) => setNickname(e.target.value)}
+                        placeholder="사이트에서 사용할 닉네임"
+                        maxLength={20}
+                        helperText="다른 회원들에게 보여지는 이름입니다."
+                      />
 
-                  <div>
-                    <label className="block text-sm font-medium text-[#F0E6D2] mb-2">학번</label>
-                    <input
-                      type="text"
-                      value={studentId}
-                      onChange={(e) => setStudentId(e.target.value)}
-                      placeholder="예: 20231234"
-                      className="input"
-                      maxLength={10}
-                    />
-                  </div>
+                      <TextInput
+                        id="studentId"
+                        labelText="학번"
+                        value={studentId}
+                        onChange={(e) => setStudentId(e.target.value)}
+                        placeholder="예: 20231234"
+                        maxLength={10}
+                      />
 
-                  <div>
-                    <label className="block text-sm font-medium text-[#F0E6D2] mb-2">롤 닉네임 (소환사명)</label>
-                    <input
-                      type="text"
-                      value={lolNickname}
-                      onChange={(e) => setLolNickname(e.target.value)}
-                      placeholder="예: Hide on bush"
-                      className="input"
-                      maxLength={30}
-                    />
-                  </div>
+                      <TextInput
+                        id="lolNickname"
+                        labelText="롤 닉네임 (소환사명)"
+                        value={lolNickname}
+                        onChange={(e) => setLolNickname(e.target.value)}
+                        placeholder="예: Hide on bush"
+                        maxLength={30}
+                      />
 
-                  <div>
-                    <label className="block text-sm font-medium text-[#F0E6D2] mb-2">주 포지션</label>
-                    <div className="flex flex-wrap gap-2">
-                      {POSITIONS.map((pos) => (
-                        <button
-                          key={pos}
-                          type="button"
-                          onClick={() => setMainPosition(mainPosition === pos ? '' : pos)}
-                          className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
-                            mainPosition === pos
-                              ? 'bg-gradient-to-b from-[#C8AA6E] to-[#785A28] text-[#010A13]'
-                              : 'bg-[#010A13] text-[#A09B8C] border border-[#3C3C41] hover:border-[#C8AA6E]'
-                          }`}
-                        >
-                          {pos}
-                        </button>
-                      ))}
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 500, color: '#c6c6c6', marginBottom: '0.5rem' }}>
+                          주 포지션
+                        </label>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                          {POSITIONS.map((pos) => (
+                            <Button
+                              key={pos}
+                              kind={mainPosition === pos ? 'primary' : 'ghost'}
+                              size="md"
+                              onClick={() => setMainPosition(mainPosition === pos ? '' : pos)}
+                              style={mainPosition === pos ? {
+                                background: 'linear-gradient(180deg, #C8AA6E, #785A28)',
+                                color: '#010A13',
+                                borderColor: 'transparent',
+                              } : {
+                                backgroundColor: '#161616',
+                                color: '#c6c6c6',
+                                border: '1px solid #393939',
+                              }}
+                            >
+                              {pos}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <TextInput
+                        id="favoriteGame"
+                        labelText="좋아하는 게임"
+                        value={favoriteGame}
+                        onChange={(e) => setFavoriteGame(e.target.value)}
+                        placeholder="롤 외에 좋아하는 게임"
+                        maxLength={50}
+                      />
+
+                      <Button
+                        kind="primary"
+                        size="lg"
+                        onClick={handleSave}
+                        disabled={saving}
+                        style={{ width: '100%', maxWidth: '100%', marginTop: '0.5rem' }}
+                      >
+                        {saving ? '저장 중...' : '저장하기'}
+                      </Button>
                     </div>
                   </div>
+                </Tile>
+              </TabPanel>
 
-                  <div>
-                    <label className="block text-sm font-medium text-[#F0E6D2] mb-2">좋아하는 게임</label>
-                    <input
-                      type="text"
-                      value={favoriteGame}
-                      onChange={(e) => setFavoriteGame(e.target.value)}
-                      placeholder="롤 외에 좋아하는 게임"
-                      className="input"
-                      maxLength={50}
-                    />
+              {/* Posts Tab */}
+              <TabPanel>
+                <Tile style={{ background: '#262626', padding: 0 }}>
+                  <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid #393939' }}>
+                    <h2 style={{ fontSize: '1rem', fontWeight: 600, color: '#C8AA6E', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <span>📝</span>
+                      <span>내가 쓴 글</span>
+                    </h2>
                   </div>
-
-                  <button
-                    onClick={handleSave}
-                    disabled={saving}
-                    className="w-full btn btn-primary btn-lg mt-2"
-                  >
-                    {saving ? '저장 중...' : '저장하기'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="card">
-              <div className="card-header">
-                <h2 className="heading-3 text-[#C8AA6E] flex items-center gap-2">
-                  <span>📝</span>
-                  <span>내가 쓴 글</span>
-                </h2>
-              </div>
-              <div className="card-body">
-                {posts.length === 0 ? (
-                  <div className="text-center py-10">
-                    <div className="text-4xl mb-3">📝</div>
-                    <p className="text-[#A09B8C] mb-4">아직 작성한 글이 없습니다</p>
-                    <Link to="/write?category=introduction" className="btn btn-primary">
-                      첫 글 작성하기
-                    </Link>
+                  <div style={{ padding: '1.5rem' }}>
+                    {posts.length === 0 ? (
+                      <div style={{ textAlign: 'center', padding: '2.5rem 0' }}>
+                        <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>📝</div>
+                        <p style={{ color: '#c6c6c6', marginBottom: '1rem' }}>아직 작성한 글이 없습니다</p>
+                        <Link to="/write?category=introduction">
+                          <Button kind="primary">첫 글 작성하기</Button>
+                        </Link>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        {posts.map((post) => (
+                          <Link
+                            key={post.id}
+                            to={`/post/${post.id}`}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              gap: '1rem',
+                              padding: '0.75rem',
+                              backgroundColor: '#161616',
+                              borderRadius: '4px',
+                              border: '1px solid #393939',
+                              textDecoration: 'none',
+                              transition: 'border-color 0.15s',
+                            }}
+                            onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#785A28' }}
+                            onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#393939' }}
+                          >
+                            <div style={{ minWidth: 0, flex: 1 }}>
+                              <span style={{ fontSize: '0.75rem', color: '#0AC8B9', marginRight: '0.5rem' }}>[{getCategoryLabel(post.category)}]</span>
+                              <span style={{ fontSize: '0.875rem', color: '#f4f4f4' }}>{post.title}</span>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.75rem', color: '#c6c6c6', flexShrink: 0 }}>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                <span style={{ color: '#fa4d56' }}>♥</span>
+                                <span>{post.likes.length}</span>
+                              </span>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                <span>💬</span>
+                                <span>{post.comments.length}</span>
+                              </span>
+                              <span>{post.createdAt.toLocaleDateString('ko-KR')}</span>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div className="space-y-2">
-                    {posts.map((post) => (
-                      <Link
-                        key={post.id}
-                        to={`/post/${post.id}`}
-                        className="flex items-center justify-between gap-4 p-3 bg-[#010A13] rounded border border-[#1E2328] hover:border-[#785A28] transition-colors"
-                      >
-                        <div className="min-w-0 flex-1">
-                          <span className="text-xs text-[#0AC8B9] mr-2">[{getCategoryLabel(post.category)}]</span>
-                          <span className="text-sm text-[#F0E6D2]">{post.title}</span>
-                        </div>
-                        <div className="flex items-center gap-3 text-xs text-[#A09B8C] shrink-0">
-                          <span className="flex items-center gap-1">
-                            <span className="text-red-400">♥</span>
-                            <span>{post.likes.length}</span>
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <span>💬</span>
-                            <span>{post.comments.length}</span>
-                          </span>
-                          <span className="hidden sm:block">{post.createdAt.toLocaleDateString('ko-KR')}</span>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
+                </Tile>
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
         </div>
       </div>
     </div>
@@ -454,10 +495,10 @@ export default function MyPage() {
 
 function StatCard({ label, value, icon }: { label: string; value: number; icon: string }) {
   return (
-    <div className="card p-4 text-center">
-      <span className="text-xl mb-1 block">{icon}</span>
-      <p className="text-xl font-bold text-[#C8AA6E]">{value}</p>
-      <p className="text-xs text-[#A09B8C]">{label}</p>
-    </div>
+    <Tile style={{ padding: '1rem', textAlign: 'center', background: '#262626' }}>
+      <span style={{ fontSize: '1.25rem', marginBottom: '0.25rem', display: 'block' }}>{icon}</span>
+      <p style={{ fontSize: '1.25rem', fontWeight: 700, color: '#C8AA6E' }}>{value}</p>
+      <p style={{ fontSize: '0.75rem', color: '#c6c6c6' }}>{label}</p>
+    </Tile>
   )
 }

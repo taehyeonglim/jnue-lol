@@ -12,7 +12,7 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <LoadingSpinner />
       </div>
     )

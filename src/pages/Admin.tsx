@@ -5,18 +5,25 @@ import { useAuth } from '../contexts/AuthContext'
 import { User, Reward, TIER_INFO, TierType, TIER_THRESHOLDS } from '../types'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import { Navigate } from 'react-router-dom'
+import {
+  Tile, Button, Tag, Search, TextInput, TextArea, Select, SelectItem,
+  Tabs, TabList, Tab, TabPanels, TabPanel,
+} from '@carbon/react'
+import { TrashCan } from '@carbon/icons-react'
 
-type Tab = 'users' | 'rewards' | 'challenger'
+type AdminTab = 'users' | 'rewards' | 'challenger'
 
-const TAB_INFO: Record<Tab, { label: string; icon: string; description: string }> = {
+const TAB_INFO: Record<AdminTab, { label: string; icon: string; description: string }> = {
   users: { label: '회원 관리', icon: '👥', description: '포인트 조정 및 관리자 권한 관리' },
   challenger: { label: '챌린저 지정', icon: '👑', description: '특별 챌린저 티어 부여' },
   rewards: { label: '상품 지급', icon: '🎁', description: '이벤트 상품 지급 및 내역 관리' },
 }
 
+const TAB_KEYS: AdminTab[] = ['users', 'challenger', 'rewards']
+
 export default function Admin() {
   const { currentUser } = useAuth()
-  const [activeTab, setActiveTab] = useState<Tab>('users')
+  const [activeTab, setActiveTab] = useState<AdminTab>('users')
   const [users, setUsers] = useState<User[]>([])
   const [rewards, setRewards] = useState<Reward[]>([])
   const [loading, setLoading] = useState(true)
@@ -77,23 +84,27 @@ export default function Admin() {
     return <LoadingSpinner />
   }
 
+  const handleTabChange = (evt: { selectedIndex: number }) => {
+    setActiveTab(TAB_KEYS[evt.selectedIndex])
+  }
+
   return (
     <div>
       {/* Page Header */}
       <div className="page-header">
         <div className="container">
-          <div className="flex items-center gap-3 justify-center mb-2">
-            <span className="text-3xl">⚙️</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', justifyContent: 'center', marginBottom: '0.5rem' }}>
+            <span style={{ fontSize: '1.875rem' }}>⚙️</span>
             <h1 className="page-title">관리자 페이지</h1>
           </div>
           <p className="page-desc">회원 관리, 챌린저 지정, 상품 지급을 관리합니다</p>
         </div>
       </div>
 
-      <div className="section">
-        <div className="container">
+      <div style={{ padding: '2rem 0' }}>
+        <div className="page-container">
           {/* Stats Overview */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
             <StatCard label="전체 회원" value={users.length} icon="👥" />
             <StatCard label="챌린저" value={users.filter(u => u.isChallenger).length} icon="👑" />
             <StatCard label="관리자" value={users.filter(u => u.isAdmin).length} icon="🛡️" />
@@ -101,40 +112,39 @@ export default function Admin() {
           </div>
 
           {/* Tabs */}
-          <div className="tabs mb-6">
-            {(Object.entries(TAB_INFO) as [Tab, typeof TAB_INFO[Tab]][]).map(([key, info]) => (
-              <button
-                key={key}
-                onClick={() => setActiveTab(key)}
-                className={`tab ${activeTab === key ? 'tab-active' : ''}`}
-              >
-                <span className="text-lg">{info.icon}</span>
-                <span className="hidden sm:inline ml-2">{info.label}</span>
-              </button>
-            ))}
-          </div>
+          <Tabs selectedIndex={TAB_KEYS.indexOf(activeTab)} onChange={handleTabChange}>
+            <TabList aria-label="관리자 탭" style={{ marginBottom: '0.5rem' }}>
+              {TAB_KEYS.map((key) => (
+                <Tab key={key}>
+                  <span style={{ marginRight: '0.5rem' }}>{TAB_INFO[key].icon}</span>
+                  {TAB_INFO[key].label}
+                </Tab>
+              ))}
+            </TabList>
 
-          {/* Tab Description */}
-          <div className="flex items-center gap-2 mb-6 text-sm text-[#A09B8C]">
-            <span>{TAB_INFO[activeTab].icon}</span>
-            <span>{TAB_INFO[activeTab].description}</span>
-          </div>
+            {/* Tab Description */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem', fontSize: '0.875rem', color: '#c6c6c6', paddingTop: '0.5rem' }}>
+              <span>{TAB_INFO[activeTab].icon}</span>
+              <span>{TAB_INFO[activeTab].description}</span>
+            </div>
 
-          {/* Tab Content */}
-          {activeTab === 'users' && (
-            <UsersTab users={users} onUpdate={loadData} />
-          )}
-          {activeTab === 'challenger' && (
-            <ChallengerTab users={users} onUpdate={loadData} />
-          )}
-          {activeTab === 'rewards' && (
-            <RewardsTab
-              users={users}
-              rewards={rewards}
-              adminName={currentUser.nickname || currentUser.displayName}
-              onUpdate={loadData}
-            />
-          )}
+            <TabPanels>
+              <TabPanel style={{ padding: 0 }}>
+                <UsersTab users={users} onUpdate={loadData} />
+              </TabPanel>
+              <TabPanel style={{ padding: 0 }}>
+                <ChallengerTab users={users} onUpdate={loadData} />
+              </TabPanel>
+              <TabPanel style={{ padding: 0 }}>
+                <RewardsTab
+                  users={users}
+                  rewards={rewards}
+                  adminName={currentUser.nickname || currentUser.displayName}
+                  onUpdate={loadData}
+                />
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
         </div>
       </div>
     </div>
@@ -143,15 +153,15 @@ export default function Admin() {
 
 function StatCard({ label, value, icon }: { label: string; value: number; icon: string }) {
   return (
-    <div className="card p-4">
-      <div className="flex items-center gap-3">
-        <span className="text-2xl">{icon}</span>
+    <Tile style={{ padding: '1rem', background: '#262626' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <span style={{ fontSize: '1.5rem' }}>{icon}</span>
         <div>
-          <p className="text-2xl font-bold text-[#C8AA6E]">{value}</p>
-          <p className="text-xs text-[#A09B8C]">{label}</p>
+          <p style={{ fontSize: '1.5rem', fontWeight: 700, color: '#C8AA6E' }}>{value}</p>
+          <p style={{ fontSize: '0.75rem', color: '#c6c6c6' }}>{label}</p>
         </div>
       </div>
-    </div>
+    </Tile>
   )
 }
 
@@ -244,136 +254,143 @@ function UsersTab({ users, onUpdate }: { users: User[]; onUpdate: () => void }) 
   }
 
   return (
-    <div className="space-y-4">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       {/* Search */}
-      <div className="card p-4">
-        <div className="relative">
-          <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#A09B8C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="이름, 닉네임, 이메일로 검색..."
-            className="input pl-12"
-          />
-        </div>
-        <p className="text-xs text-[#A09B8C] mt-2">
+      <Tile style={{ padding: '1rem', background: '#262626' }}>
+        <Search
+          id="user-search"
+          labelText="회원 검색"
+          placeholder="이름, 닉네임, 이메일로 검색..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value || '')}
+          size="lg"
+        />
+        <p style={{ fontSize: '0.75rem', color: '#c6c6c6', marginTop: '0.5rem' }}>
           총 {filteredUsers.length}명의 회원
         </p>
-      </div>
+      </Tile>
 
       {/* User List */}
-      <div className="card overflow-hidden">
-        <div className="hidden sm:grid grid-cols-[1fr_auto_auto_auto_auto_auto] gap-4 p-4 bg-[#010A13] text-xs font-medium text-[#A09B8C] uppercase tracking-wide border-b border-[#1E2328]">
+      <Tile style={{ overflow: 'hidden', padding: 0, background: '#262626' }}>
+        <div
+          style={{
+            display: 'none',
+            gridTemplateColumns: '1fr auto auto auto auto auto',
+            gap: '1rem',
+            padding: '1rem',
+            backgroundColor: '#161616',
+            fontSize: '0.75rem',
+            fontWeight: 500,
+            color: '#c6c6c6',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            borderBottom: '1px solid #393939',
+          }}
+          className="sm-grid-show"
+        >
           <span>유저</span>
-          <span className="w-24 text-center">티어</span>
-          <span className="w-20 text-right">포인트</span>
-          <span className="w-16 text-center">관리자</span>
-          <span className="w-12 text-center">테스트</span>
-          <span className="w-56 text-right">액션</span>
+          <span style={{ width: '96px', textAlign: 'center' }}>티어</span>
+          <span style={{ width: '80px', textAlign: 'right' }}>포인트</span>
+          <span style={{ width: '64px', textAlign: 'center' }}>관리자</span>
+          <span style={{ width: '48px', textAlign: 'center' }}>테스트</span>
+          <span style={{ width: '224px', textAlign: 'right' }}>액션</span>
         </div>
 
-        <div className="divide-y divide-[#1E2328]">
+        <div>
           {filteredUsers.map((user) => {
             const tierInfo = TIER_INFO[user.tier]
             return (
-              <div key={user.uid} className={`p-4 hover:bg-[#1E2328]/50 transition-colors ${user.isTestAccount ? 'opacity-60' : ''}`}>
-                <div className="sm:grid sm:grid-cols-[1fr_auto_auto_auto_auto_auto] sm:gap-4 sm:items-center">
-                  <div className="flex items-center gap-3 mb-3 sm:mb-0">
+              <div
+                key={user.uid}
+                style={{
+                  padding: '1rem',
+                  borderBottom: '1px solid #393939',
+                  transition: 'background-color 0.15s',
+                  opacity: user.isTestAccount ? 0.6 : 1,
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(57, 57, 57, 0.5)' }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
+              >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  {/* User info row */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                     <img
                       src={user.photoURL || '/default-avatar.png'}
                       alt={user.displayName}
                       className="avatar avatar-md"
                       style={{ borderColor: tierInfo.color }}
                     />
-                    <div className="min-w-0">
-                      <p className="text-[#F0E6D2] font-medium truncate">
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <p style={{ color: '#f4f4f4', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {user.nickname || user.displayName}
-                        {user.isChallenger && <span className="ml-1.5 text-xs">{TIER_INFO.challenger.emoji}</span>}
+                        {user.isChallenger && <span style={{ marginLeft: '0.375rem', fontSize: '0.75rem' }}>{TIER_INFO.challenger.emoji}</span>}
                       </p>
-                      <p className="text-xs text-[#A09B8C] truncate">{user.email}</p>
+                      <p style={{ fontSize: '0.75rem', color: '#c6c6c6', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between sm:contents">
-                    <div className="sm:w-24 sm:flex sm:justify-center">
-                      <span
-                        className="text-xs font-medium px-2 py-0.5 rounded"
+                  {/* Info + Actions row */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <Tag
+                        size="sm"
+                        type="outline"
                         style={{
                           backgroundColor: `${tierInfo.color}20`,
                           color: tierInfo.color,
+                          borderColor: tierInfo.color,
                         }}
                       >
                         {tierInfo.emoji} {tierInfo.name}
+                      </Tag>
+
+                      <span style={{ color: '#C8AA6E', fontWeight: 700 }}>
+                        {user.points}P
                       </span>
+
+                      {user.isAdmin && (
+                        <Tag size="sm" type="teal">관리자</Tag>
+                      )}
+
+                      {user.isTestAccount && (
+                        <Tag size="sm" type="warm-gray" style={{ backgroundColor: 'rgba(251, 146, 60, 0.15)', color: '#fb923c' }}>테스트</Tag>
+                      )}
                     </div>
 
-                    <span className="text-[#C8AA6E] font-bold sm:w-20 sm:text-right">
-                      {user.points}P
-                    </span>
-
-                    <span className="sm:w-16 sm:text-center hidden sm:block">
-                      {user.isAdmin ? (
-                        <span className="inline-flex items-center gap-1 text-[#0AC8B9]">
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        </span>
-                      ) : (
-                        <span className="text-[#A09B8C]">-</span>
-                      )}
-                    </span>
-
-                    <span className="sm:w-12 sm:text-center hidden sm:block">
-                      {user.isTestAccount ? (
-                        <span className="inline-flex items-center gap-1 text-orange-400">
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        </span>
-                      ) : (
-                        <span className="text-[#A09B8C]">-</span>
-                      )}
-                    </span>
-
-                    <div className="flex justify-end gap-2 sm:w-56">
-                      <button
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <Button
+                        kind="ghost"
+                        size="sm"
                         onClick={() => adjustPoints(user)}
-                        className="px-3 py-1.5 text-xs font-medium text-[#C8AA6E] hover:bg-[#C8AA6E]/10 rounded transition-colors"
+                        style={{ color: '#C8AA6E' }}
                       >
                         포인트
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        kind="ghost"
+                        size="sm"
                         onClick={() => toggleTestAccount(user)}
-                        className={`px-3 py-1.5 text-xs font-medium rounded transition-colors ${
-                          user.isTestAccount
-                            ? 'text-orange-400 hover:bg-orange-400/10'
-                            : 'text-[#A09B8C] hover:bg-[#A09B8C]/10'
-                        }`}
-                        title="테스트 계정 토글"
+                        style={{ color: user.isTestAccount ? '#fb923c' : '#c6c6c6' }}
                       >
                         {user.isTestAccount ? '테스트 해제' : '테스트'}
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        kind="ghost"
+                        size="sm"
                         onClick={() => toggleAdmin(user)}
-                        className={`px-3 py-1.5 text-xs font-medium rounded transition-colors ${
-                          user.isAdmin
-                            ? 'text-red-400 hover:bg-red-400/10'
-                            : 'text-[#0AC8B9] hover:bg-[#0AC8B9]/10'
-                        }`}
+                        style={{ color: user.isAdmin ? '#fa4d56' : '#0AC8B9' }}
                       >
                         {user.isAdmin ? '관리자 해제' : '관리자'}
-                      </button>
+                      </Button>
                       {!user.isAdmin && (
-                        <button
+                        <Button
+                          kind="danger--ghost"
+                          size="sm"
+                          hasIconOnly
+                          renderIcon={TrashCan}
+                          iconDescription="회원 삭제"
                           onClick={() => deleteUser(user)}
-                          className="px-3 py-1.5 text-xs font-medium text-red-500 hover:bg-red-500/10 rounded transition-colors"
-                          title="회원 삭제"
-                        >
-                          삭제
-                        </button>
+                        />
                       )}
                     </div>
                   </div>
@@ -382,7 +399,7 @@ function UsersTab({ users, onUpdate }: { users: User[]; onUpdate: () => void }) 
             )
           })}
         </div>
-      </div>
+      </Tile>
     </div>
   )
 }
@@ -409,32 +426,44 @@ function ChallengerTab({ users, onUpdate }: { users: User[]; onUpdate: () => voi
   }
 
   return (
-    <div className="space-y-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       {/* Current Challengers */}
-      <div className="card overflow-hidden">
-        <div className="card-header bg-gradient-to-r from-[#F4C874]/20 to-transparent">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">{TIER_INFO.challenger.emoji}</span>
+      <Tile style={{ overflow: 'hidden', padding: 0, background: '#262626' }}>
+        <div style={{
+          padding: '1rem 1.5rem',
+          borderBottom: '1px solid #393939',
+          background: 'linear-gradient(to right, rgba(244, 200, 116, 0.2), transparent)',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span style={{ fontSize: '1.5rem' }}>{TIER_INFO.challenger.emoji}</span>
             <div>
-              <h2 className="heading-3 text-[#C8AA6E]">현재 챌린저</h2>
-              <p className="text-sm text-[#A09B8C]">{challengers.length}명의 챌린저</p>
+              <h2 style={{ fontSize: '1rem', fontWeight: 600, color: '#C8AA6E' }}>현재 챌린저</h2>
+              <p style={{ fontSize: '0.875rem', color: '#c6c6c6' }}>{challengers.length}명의 챌린저</p>
             </div>
           </div>
         </div>
 
-        <div className="card-body">
+        <div style={{ padding: '1.5rem' }}>
           {challengers.length === 0 ? (
-            <div className="text-center py-8">
-              <span className="text-4xl mb-3 block">👑</span>
-              <p className="text-[#A09B8C]">아직 챌린저가 없습니다</p>
-              <p className="text-sm text-[#A09B8C]">아래에서 지정해주세요</p>
+            <div style={{ textAlign: 'center', padding: '2rem 0' }}>
+              <span style={{ fontSize: '2.5rem', marginBottom: '0.75rem', display: 'block' }}>👑</span>
+              <p style={{ color: '#c6c6c6' }}>아직 챌린저가 없습니다</p>
+              <p style={{ fontSize: '0.875rem', color: '#c6c6c6' }}>아래에서 지정해주세요</p>
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '0.75rem' }}>
               {challengers.map((user) => (
                 <div
                   key={user.uid}
-                  className="flex items-center gap-3 p-3 bg-gradient-to-r from-[#F4C874]/10 to-transparent border border-[#F4C874]/30 rounded"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    padding: '0.75rem',
+                    background: 'linear-gradient(to right, rgba(244, 200, 116, 0.1), transparent)',
+                    border: '1px solid rgba(244, 200, 116, 0.3)',
+                    borderRadius: '4px',
+                  }}
                 >
                   <img
                     src={user.photoURL || '/default-avatar.png'}
@@ -442,41 +471,62 @@ function ChallengerTab({ users, onUpdate }: { users: User[]; onUpdate: () => voi
                     className="avatar avatar-lg"
                     style={{ borderColor: TIER_INFO.challenger.color }}
                   />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-[#F0E6D2] truncate">{user.nickname || user.displayName}</p>
-                    <p className="text-sm text-[#C8AA6E]">{user.points}P</p>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontWeight: 700, color: '#f4f4f4', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.nickname || user.displayName}</p>
+                    <p style={{ fontSize: '0.875rem', color: '#C8AA6E' }}>{user.points}P</p>
                   </div>
-                  <button
+                  <Button
+                    kind="danger--ghost"
+                    size="sm"
                     onClick={() => toggleChallenger(user)}
-                    className="px-3 py-1.5 text-xs font-medium text-red-400 hover:bg-red-400/10 rounded transition-colors"
                   >
                     해제
-                  </button>
+                  </Button>
                 </div>
               ))}
             </div>
           )}
         </div>
-      </div>
+      </Tile>
 
       {/* Assign Challenger */}
-      <div className="card overflow-hidden">
-        <div className="card-header">
-          <h2 className="heading-3 text-[#C8AA6E]">챌린저 지정하기</h2>
-          <p className="text-sm text-[#A09B8C]">
+      <Tile style={{ overflow: 'hidden', padding: 0, background: '#262626' }}>
+        <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid #393939' }}>
+          <h2 style={{ fontSize: '1rem', fontWeight: 600, color: '#C8AA6E' }}>챌린저 지정하기</h2>
+          <p style={{ fontSize: '0.875rem', color: '#c6c6c6' }}>
             포인트 상위 유저들 중에서 챌린저를 선정하세요
           </p>
         </div>
 
-        <div className="divide-y divide-[#1E2328]">
+        <div>
           {nonChallengers.slice(0, 20).map((user, index) => {
             const tierInfo = TIER_INFO[user.tier]
             return (
               <div
                 key={user.uid}
-                className="p-4 flex items-center gap-4 hover:bg-[#1E2328]/50 transition-colors"
+                style={{
+                  padding: '1rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  borderBottom: '1px solid #393939',
+                  transition: 'background-color 0.15s',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(57, 57, 57, 0.5)' }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
               >
-                <span className="w-8 h-8 flex items-center justify-center rounded-full bg-[#010A13] text-[#A09B8C] text-sm font-medium">
+                <span style={{
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '50%',
+                  backgroundColor: '#161616',
+                  color: '#c6c6c6',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                }}>
                   {index + 1}
                 </span>
                 <img
@@ -485,27 +535,28 @@ function ChallengerTab({ users, onUpdate }: { users: User[]; onUpdate: () => voi
                   className="avatar avatar-md"
                   style={{ borderColor: tierInfo.color }}
                 />
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-[#F0E6D2] truncate">{user.nickname || user.displayName}</p>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-xs" style={{ color: tierInfo.color }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontWeight: 500, color: '#f4f4f4', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.nickname || user.displayName}</p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.125rem' }}>
+                    <span style={{ fontSize: '0.75rem', color: tierInfo.color }}>
                       {tierInfo.emoji} {tierInfo.name}
                     </span>
-                    <span className="text-sm text-[#C8AA6E] font-medium">{user.points}P</span>
+                    <span style={{ fontSize: '0.875rem', color: '#C8AA6E', fontWeight: 500 }}>{user.points}P</span>
                   </div>
                 </div>
-                <button
+                <Button
+                  kind="tertiary"
+                  size="sm"
                   onClick={() => toggleChallenger(user)}
-                  className="px-4 py-2 text-sm font-medium text-[#0AC8B9] border border-[#0AC8B9]/30 hover:bg-[#0AC8B9]/10 rounded transition-colors flex items-center gap-2"
+                  style={{ color: '#0AC8B9', borderColor: 'rgba(10, 200, 185, 0.3)' }}
                 >
-                  <span>👑</span>
-                  <span className="hidden sm:inline">챌린저 지정</span>
-                </button>
+                  👑 챌린저 지정
+                </Button>
               </div>
             )
           })}
         </div>
-      </div>
+      </Tile>
     </div>
   )
 }
@@ -561,102 +612,103 @@ function RewardsTab({
   }
 
   return (
-    <div className="grid lg:grid-cols-2 gap-6">
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
       {/* Give Reward Form */}
-      <div className="card overflow-hidden">
-        <div className="card-header">
-          <div className="flex items-center gap-2">
-            <span className="text-xl">🎁</span>
-            <h2 className="heading-3 text-[#C8AA6E]">상품 지급</h2>
+      <Tile style={{ overflow: 'hidden', padding: 0, background: '#262626' }}>
+        <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid #393939' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span style={{ fontSize: '1.25rem' }}>🎁</span>
+            <h2 style={{ fontSize: '1rem', fontWeight: 600, color: '#C8AA6E' }}>상품 지급</h2>
           </div>
         </div>
 
-        <form onSubmit={handleGiveReward} className="card-body space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-[#F0E6D2] mb-2">
-              대상 유저
-            </label>
-            <select
-              value={selectedUser}
-              onChange={(e) => setSelectedUser(e.target.value)}
-              className="input select"
-            >
-              <option value="">유저 선택...</option>
-              {users.map((user) => (
-                <option key={user.uid} value={user.uid}>
-                  {user.nickname || user.displayName} ({user.points}P - {TIER_INFO[user.tier].name})
-                </option>
-              ))}
-            </select>
-          </div>
+        <form onSubmit={handleGiveReward} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <Select
+            id="reward-user-select"
+            labelText="대상 유저"
+            value={selectedUser}
+            onChange={(e) => setSelectedUser(e.target.value)}
+          >
+            <SelectItem value="" text="유저 선택..." />
+            {users.map((user) => (
+              <SelectItem
+                key={user.uid}
+                value={user.uid}
+                text={`${user.nickname || user.displayName} (${user.points}P - ${TIER_INFO[user.tier].name})`}
+              />
+            ))}
+          </Select>
 
-          <div>
-            <label className="block text-sm font-medium text-[#F0E6D2] mb-2">
-              상품명
-            </label>
-            <input
-              type="text"
-              value={rewardName}
-              onChange={(e) => setRewardName(e.target.value)}
-              placeholder="예: 스타벅스 아메리카노"
-              className="input"
-            />
-          </div>
+          <TextInput
+            id="reward-name"
+            labelText="상품명"
+            value={rewardName}
+            onChange={(e) => setRewardName(e.target.value)}
+            placeholder="예: 스타벅스 아메리카노"
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-[#F0E6D2] mb-2">
-              설명 (선택)
-            </label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="상품 지급 사유나 설명"
-              className="input textarea"
-            />
-          </div>
+          <TextArea
+            id="reward-description"
+            labelText="설명 (선택)"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="상품 지급 사유나 설명"
+            rows={3}
+          />
 
-          <button
+          <Button
             type="submit"
+            kind="primary"
+            size="lg"
             disabled={submitting || !selectedUser || !rewardName.trim()}
-            className="w-full btn btn-primary btn-lg"
+            style={{ width: '100%', maxWidth: '100%' }}
           >
             {submitting ? '지급 중...' : '상품 지급'}
-          </button>
+          </Button>
         </form>
-      </div>
+      </Tile>
 
       {/* Reward History */}
-      <div className="card overflow-hidden">
-        <div className="card-header flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-xl">📋</span>
-            <h2 className="heading-3 text-[#C8AA6E]">지급 내역</h2>
+      <Tile style={{ overflow: 'hidden', padding: 0, background: '#262626' }}>
+        <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid #393939', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span style={{ fontSize: '1.25rem' }}>📋</span>
+            <h2 style={{ fontSize: '1rem', fontWeight: 600, color: '#C8AA6E' }}>지급 내역</h2>
           </div>
-          <span className="text-sm text-[#A09B8C]">{rewards.length}건</span>
+          <span style={{ fontSize: '0.875rem', color: '#c6c6c6' }}>{rewards.length}건</span>
         </div>
 
-        <div className="max-h-[500px] overflow-y-auto">
+        <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
           {rewards.length === 0 ? (
-            <div className="p-8 text-center">
-              <span className="text-4xl mb-3 block">📭</span>
-              <p className="text-[#A09B8C]">아직 지급 내역이 없습니다</p>
+            <div style={{ padding: '2rem', textAlign: 'center' }}>
+              <span style={{ fontSize: '2.5rem', marginBottom: '0.75rem', display: 'block' }}>📭</span>
+              <p style={{ color: '#c6c6c6' }}>아직 지급 내역이 없습니다</p>
             </div>
           ) : (
-            <div className="divide-y divide-[#1E2328]">
+            <div>
               {rewards.map((reward) => (
-                <div key={reward.id} className="p-4 hover:bg-[#1E2328]/50 transition-colors">
-                  <div className="flex items-start gap-3">
-                    <span className="text-2xl">🎁</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-[#F0E6D2]">{reward.rewardName}</p>
-                      <p className="text-sm text-[#C8AA6E]">{reward.userName}</p>
+                <div
+                  key={reward.id}
+                  style={{
+                    padding: '1rem',
+                    borderBottom: '1px solid #393939',
+                    transition: 'background-color 0.15s',
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(57, 57, 57, 0.5)' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                    <span style={{ fontSize: '1.5rem' }}>🎁</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontWeight: 500, color: '#f4f4f4' }}>{reward.rewardName}</p>
+                      <p style={{ fontSize: '0.875rem', color: '#C8AA6E' }}>{reward.userName}</p>
                       {reward.description && (
-                        <p className="text-sm text-[#A09B8C] mt-1">{reward.description}</p>
+                        <p style={{ fontSize: '0.875rem', color: '#c6c6c6', marginTop: '0.25rem' }}>{reward.description}</p>
                       )}
                     </div>
-                    <div className="text-right text-xs text-[#A09B8C] shrink-0">
+                    <div style={{ textAlign: 'right', fontSize: '0.75rem', color: '#c6c6c6', flexShrink: 0 }}>
                       <p>{reward.givenAt.toLocaleDateString('ko-KR')}</p>
-                      <p className="mt-0.5">by {reward.givenBy}</p>
+                      <p style={{ marginTop: '0.125rem' }}>by {reward.givenBy}</p>
                     </div>
                   </div>
                 </div>
@@ -664,7 +716,7 @@ function RewardsTab({
             </div>
           )}
         </div>
-      </div>
+      </Tile>
     </div>
   )
 }

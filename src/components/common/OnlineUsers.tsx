@@ -3,6 +3,8 @@ import { collection, doc, setDoc, deleteDoc, onSnapshot, serverTimestamp } from 
 import { db } from '../../config/firebase'
 import { useAuth } from '../../contexts/AuthContext'
 import { TierType, TIER_THRESHOLDS, TIER_INFO } from '../../types'
+import { Tag } from '@carbon/react'
+import { ChevronUp } from '@carbon/icons-react'
 
 interface OnlineUser {
   uid: string
@@ -86,77 +88,122 @@ export default function OnlineUsers() {
   if (!currentUser) return null
 
   return (
-    <div className="fixed bottom-4 right-4 z-40">
-      <div className="card w-60 overflow-hidden">
+    <div style={{
+      position: 'fixed',
+      bottom: 16,
+      right: 16,
+      zIndex: 40,
+      width: 240,
+    }}>
+      <div style={{
+        backgroundColor: '#262626',
+        border: '1px solid #393939',
+        borderRadius: 4,
+        overflow: 'hidden',
+      }}>
         {/* Header */}
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full px-3.5 py-2.5 flex items-center justify-between hover:bg-[#1E2328]/50 transition-colors"
+          style={{
+            width: '100%',
+            padding: '0.625rem 0.875rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: '#f4f4f4',
+          }}
         >
-          <div className="flex items-center gap-2">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-            </span>
-            <span className="text-[13px] font-medium text-[#F0E6D2]/80">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span style={{
+              display: 'inline-block',
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              backgroundColor: '#24a148',
+            }} />
+            <span style={{ fontSize: '0.8125rem', fontWeight: 500, color: '#c6c6c6' }}>
               접속 중
             </span>
-            <span className="badge badge-gold text-[11px]">
+            <Tag size="sm" type="blue">
               {onlineUsers.length}
-            </span>
+            </Tag>
           </div>
-          <svg
-            className={`w-3.5 h-3.5 text-[#A09B8C] transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 15l7-7 7 7" />
-          </svg>
+          <ChevronUp
+            size={14}
+            style={{
+              color: '#c6c6c6',
+              transition: 'transform 0.2s',
+              transform: isExpanded ? 'rotate(0deg)' : 'rotate(180deg)',
+            }}
+          />
         </button>
 
         {/* User List */}
         {isExpanded && (
-          <div className="border-t border-[#1E2328]">
+          <div style={{ borderTop: '1px solid #393939' }}>
             {onlineUsers.length === 0 ? (
-              <div className="px-4 py-5 text-center">
-                <p className="text-xs text-[#A09B8C]">접속 중인 유저가 없습니다</p>
+              <div style={{ padding: '1.25rem 1rem', textAlign: 'center' }}>
+                <p style={{ fontSize: '0.75rem', color: '#6f6f6f' }}>접속 중인 유저가 없습니다</p>
               </div>
             ) : (
-              <div className="max-h-52 overflow-y-auto py-1">
+              <div style={{ maxHeight: 208, overflowY: 'auto', padding: '0.25rem 0' }}>
                 {onlineUsers.map((user) => {
                   const tierInfo = TIER_INFO[user.tier] || TIER_INFO.bronze
                   return (
                     <div
                       key={user.uid}
-                      className={`px-3 py-2 flex items-center gap-2.5 transition-colors ${
-                        user.uid === currentUser.uid
-                          ? 'bg-[#C8AA6E]/5'
-                          : 'hover:bg-[#1E2328]/50'
-                      }`}
+                      style={{
+                        padding: '0.5rem 0.75rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.625rem',
+                        backgroundColor: user.uid === currentUser.uid ? 'rgba(69, 137, 255, 0.05)' : 'transparent',
+                      }}
                     >
-                      <div className="relative shrink-0">
+                      <div style={{ position: 'relative', flexShrink: 0 }}>
                         <img
                           src={user.photoURL || '/default-avatar.png'}
                           alt={user.nickname || user.displayName}
-                          className="w-7 h-7 rounded-full ring-1 ring-[#3C3C41] object-cover"
+                          style={{
+                            width: 28,
+                            height: 28,
+                            borderRadius: '50%',
+                            border: '1px solid #525252',
+                            objectFit: 'cover',
+                          }}
                         />
-                        <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 rounded-full ring-2 ring-[#010A13]"></span>
+                        <span style={{
+                          position: 'absolute',
+                          bottom: -2,
+                          right: -2,
+                          width: 10,
+                          height: 10,
+                          backgroundColor: '#24a148',
+                          borderRadius: '50%',
+                          border: '2px solid #262626',
+                        }} />
                       </div>
 
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[13px] font-medium text-[#F0E6D2]/90 truncate">
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{
+                          fontSize: '0.8125rem',
+                          fontWeight: 500,
+                          color: '#e0e0e0',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}>
                           {user.nickname || user.displayName}
                           {user.uid === currentUser.uid && (
-                            <span className="text-[10px] text-[#0AC8B9] ml-1">(나)</span>
+                            <span style={{ fontSize: '0.625rem', color: '#4589ff', marginLeft: 4 }}>(나)</span>
                           )}
                         </p>
-                        <div className="flex items-center gap-1">
-                          <span className="text-[10px]">{tierInfo.emoji}</span>
-                          <span
-                            className="text-[10px] font-medium"
-                            style={{ color: tierInfo.color }}
-                          >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <span style={{ fontSize: '0.625rem' }}>{tierInfo.emoji}</span>
+                          <span style={{ fontSize: '0.625rem', fontWeight: 500, color: tierInfo.color }}>
                             {tierInfo.name}
                           </span>
                         </div>
@@ -171,20 +218,27 @@ export default function OnlineUsers() {
 
         {/* Collapsed avatars */}
         {!isExpanded && onlineUsers.length > 0 && (
-          <div className="px-3 pb-2.5 flex items-center">
-            <div className="flex -space-x-1.5">
-              {onlineUsers.slice(0, 4).map((user) => (
+          <div style={{ padding: '0 0.75rem 0.625rem', display: 'flex', alignItems: 'center' }}>
+            <div style={{ display: 'flex' }}>
+              {onlineUsers.slice(0, 4).map((user, i) => (
                 <img
                   key={user.uid}
                   src={user.photoURL || '/default-avatar.png'}
                   alt={user.nickname || user.displayName}
-                  className="w-6 h-6 rounded-full ring-2 ring-[#010A13] object-cover"
                   title={user.nickname || user.displayName}
+                  style={{
+                    width: 24,
+                    height: 24,
+                    borderRadius: '50%',
+                    border: '2px solid #262626',
+                    objectFit: 'cover',
+                    marginLeft: i > 0 ? -6 : 0,
+                  }}
                 />
               ))}
             </div>
             {onlineUsers.length > 4 && (
-              <span className="text-[11px] text-[#A09B8C] ml-2">
+              <span style={{ fontSize: '0.6875rem', color: '#6f6f6f', marginLeft: 8 }}>
                 +{onlineUsers.length - 4}
               </span>
             )}

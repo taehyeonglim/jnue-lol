@@ -4,6 +4,8 @@ import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore'
 import { db } from '../config/firebase'
 import { useAuth } from '../contexts/AuthContext'
 import { User, TIER_INFO, TierType, POINT_VALUES } from '../types'
+import { Button, ClickableTile, Tag, Tile } from '@carbon/react'
+import { ChevronRight } from '@carbon/icons-react'
 
 export default function Home() {
   const { currentUser, signInWithGoogle } = useAuth()
@@ -72,44 +74,77 @@ export default function Home() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="py-20 md:py-32 text-center border-b border-[#1E2328]">
-        <div className="container">
-          <div className="inline-flex items-center gap-2 px-4 py-2 mb-8 bg-[#1E2328] rounded-full">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-sm text-[#A09B8C]">전주교대 e스포츠와 교육 동아리</span>
+      <section style={{ padding: '5rem 0', textAlign: 'center', borderBottom: '1px solid #393939' }}>
+        <div className="page-container">
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.5rem 1rem',
+              marginBottom: '2rem',
+              background: '#262626',
+              borderRadius: '9999px',
+            }}
+          >
+            <span
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                background: '#42be65',
+                display: 'inline-block',
+                animation: 'fadeIn 1s ease infinite alternate',
+              }}
+            />
+            <span style={{ fontSize: '0.875rem', color: '#c6c6c6' }}>전주교대 e스포츠와 교육 동아리</span>
           </div>
 
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 tracking-tight">
-            <span className="text-[#F0E6D2]">JNUE</span>
-            <span className="text-[#C8AA6E]">-</span>
-            <span className="text-[#0AC8B9]">LoL</span>
+          <h1 style={{ fontSize: '3rem', fontWeight: 700, marginBottom: '1rem', letterSpacing: '-0.02em' }}>
+            <span style={{ color: '#f4f4f4' }}>JNUE</span>
+            <span style={{ color: '#C8AA6E' }}>-</span>
+            <span style={{ color: '#0AC8B9' }}>LoL</span>
           </h1>
 
-          <p className="text-sm md:text-base text-[#C8AA6E] font-medium tracking-widest mb-4">
+          <p
+            style={{
+              fontSize: '0.875rem',
+              color: '#C8AA6E',
+              fontWeight: 500,
+              letterSpacing: '0.2em',
+              marginBottom: '1rem',
+            }}
+          >
             Learn or Lose
           </p>
 
-          <p className="text-lg text-[#A09B8C] mb-12">
+          <p style={{ fontSize: '1.125rem', color: '#c6c6c6', marginBottom: '3rem' }}>
             게임을 사랑하는 전주교대 학생들의 커뮤니티
           </p>
 
           {!currentUser ? (
-            <button onClick={handleSignIn} className="btn btn-primary btn-lg">
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+            <Button kind="primary" size="lg" onClick={handleSignIn}>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                style={{ marginRight: '0.5rem' }}
+              >
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                 <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
               </svg>
               Google로 시작하기
-            </button>
+            </Button>
           ) : (
-            <div className="flex gap-4 justify-center">
-              <Link to="/introduction" className="btn btn-primary">
-                자기소개 둘러보기
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+              <Link to="/introduction">
+                <Button kind="primary">자기소개 둘러보기</Button>
               </Link>
-              <Link to="/free" className="btn btn-secondary">
-                자유게시판
+              <Link to="/free">
+                <Button kind="secondary">자유게시판</Button>
               </Link>
             </div>
           )}
@@ -118,17 +153,27 @@ export default function Home() {
 
       {/* Members Carousel Section */}
       {members.length > 0 && (
-        <section className="section border-b border-[#1E2328]">
-          <div className="container">
-            <div className="section-header text-center">
-              <h2 className="section-title">동아리원</h2>
-              <p className="text-[#A09B8C]">함께하는 멤버들을 만나보세요</p>
+        <section style={{ padding: '3rem 0', borderBottom: '1px solid #393939' }}>
+          <div className="page-container">
+            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 600, color: '#f4f4f4', marginBottom: '0.5rem' }}>
+                동아리원
+              </h2>
+              <p style={{ color: '#c6c6c6' }}>함께하는 멤버들을 만나보세요</p>
             </div>
 
             <div
               ref={carouselRef}
-              className="flex gap-4 overflow-x-auto pt-3 pr-3 pb-4 scrollbar-hide scroll-smooth"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              className="scrollbar-hide"
+              style={{
+                display: 'flex',
+                gap: '1rem',
+                overflowX: 'auto',
+                paddingTop: '0.75rem',
+                paddingRight: '0.75rem',
+                paddingBottom: '1rem',
+                scrollBehavior: 'smooth',
+              }}
               onMouseEnter={() => setIsPaused(true)}
               onMouseLeave={() => setIsPaused(false)}
             >
@@ -137,9 +182,11 @@ export default function Home() {
               ))}
             </div>
 
-            <div className="flex justify-center mt-6">
-              <Link to="/ranking" className="btn btn-secondary btn-sm">
-                전체 랭킹 보기
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1.5rem' }}>
+              <Link to="/ranking">
+                <Button kind="secondary" size="sm">
+                  전체 랭킹 보기
+                </Button>
               </Link>
             </div>
           </div>
@@ -147,14 +194,16 @@ export default function Home() {
       )}
 
       {/* Features Section */}
-      <section className="section">
-        <div className="container-sm">
-          <div className="section-header text-center">
-            <h2 className="section-title">게시판</h2>
-            <p className="text-[#A09B8C]">동아리원들과 소통하세요</p>
+      <section style={{ padding: '3rem 0' }}>
+        <div className="page-container-sm">
+          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 600, color: '#f4f4f4', marginBottom: '0.5rem' }}>
+              게시판
+            </h2>
+            <p style={{ color: '#c6c6c6' }}>동아리원들과 소통하세요</p>
           </div>
 
-          <div className="grid gap-4">
+          <div style={{ display: 'grid', gap: '1rem' }}>
             <FeatureCard
               to="/introduction"
               title="자기소개"
@@ -179,51 +228,67 @@ export default function Home() {
       </section>
 
       {/* Tier Section */}
-      <section className="section border-t border-[#1E2328]">
-        <div className="container-sm">
-          <div className="section-header text-center">
-            <h2 className="section-title">티어 시스템</h2>
-            <p className="text-[#A09B8C]">활동하면서 티어를 올려보세요</p>
+      <section style={{ padding: '3rem 0', borderTop: '1px solid #393939' }}>
+        <div className="page-container-sm">
+          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 600, color: '#f4f4f4', marginBottom: '0.5rem' }}>
+              티어 시스템
+            </h2>
+            <p style={{ color: '#c6c6c6' }}>활동하면서 티어를 올려보세요</p>
           </div>
 
-          <div className="card">
-            <div className="card-body">
-              {/* Tier List */}
-              <div className="flex justify-center gap-4 mb-8 flex-wrap">
-                {tiers.map((tier) => (
-                  <div key={tier} className="text-center">
-                    <div className="text-3xl mb-2">{TIER_INFO[tier].emoji}</div>
-                    <div className="text-xs font-semibold" style={{ color: TIER_INFO[tier].color }}>
-                      {TIER_INFO[tier].name}
-                    </div>
+          <Tile style={{ padding: '2rem' }}>
+            {/* Tier List */}
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                gap: '1rem',
+                marginBottom: '2rem',
+                flexWrap: 'wrap',
+              }}
+            >
+              {tiers.map((tier) => (
+                <div key={tier} style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: '1.875rem', marginBottom: '0.5rem' }}>{TIER_INFO[tier].emoji}</div>
+                  <div
+                    style={{
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      color: TIER_INFO[tier].color,
+                    }}
+                  >
+                    {TIER_INFO[tier].name}
                   </div>
-                ))}
-              </div>
-
-              <div className="divider divider-gold" />
-
-              {/* Points Guide */}
-              <div className="grid grid-cols-2 gap-4">
-                <PointItem label="자기소개" points={POINT_VALUES.INTRODUCTION} />
-                <PointItem label="게시글 작성" points={POINT_VALUES.POST} />
-                <PointItem label="댓글 작성" points={POINT_VALUES.COMMENT} />
-                <PointItem label="좋아요 받기" points={POINT_VALUES.LIKE_RECEIVED} />
-              </div>
+                </div>
+              ))}
             </div>
-          </div>
+
+            <hr style={{ border: 'none', borderTop: '1px solid #393939', margin: '1.5rem 0' }} />
+
+            {/* Points Guide */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <PointItem label="자기소개" points={POINT_VALUES.INTRODUCTION} />
+              <PointItem label="게시글 작성" points={POINT_VALUES.POST} />
+              <PointItem label="댓글 작성" points={POINT_VALUES.COMMENT} />
+              <PointItem label="좋아요 받기" points={POINT_VALUES.LIKE_RECEIVED} />
+            </div>
+          </Tile>
         </div>
       </section>
 
       {/* CTA Section */}
       {!currentUser && (
-        <section className="section border-t border-[#1E2328]">
-          <div className="container-xs text-center">
-            <div className="text-5xl mb-6">🎮</div>
-            <h2 className="heading-2 mb-4">지금 시작하세요</h2>
-            <p className="text-[#A09B8C] mb-8">전주교대 학생이라면 누구나 환영합니다</p>
-            <button onClick={handleSignIn} className="btn btn-primary btn-lg">
+        <section style={{ padding: '3rem 0', borderTop: '1px solid #393939' }}>
+          <div className="page-container-xs" style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1.5rem' }}>🎮</div>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 600, color: '#f4f4f4', marginBottom: '1rem' }}>
+              지금 시작하세요
+            </h2>
+            <p style={{ color: '#c6c6c6', marginBottom: '2rem' }}>전주교대 학생이라면 누구나 환영합니다</p>
+            <Button kind="primary" size="lg" onClick={handleSignIn}>
               Google로 로그인
-            </button>
+            </Button>
           </div>
         </section>
       )}
@@ -245,33 +310,54 @@ function FeatureCard({
   accent?: boolean
 }) {
   return (
-    <Link
-      to={to}
-      className={`card card-hover flex items-center justify-between p-6 ${
-        accent ? 'card-gold' : ''
-      }`}
-    >
-      <div>
-        <h3 className={`font-semibold mb-1 ${accent ? 'text-[#C8AA6E]' : 'text-[#F0E6D2]'}`}>
-          {title}
-        </h3>
-        <p className="text-sm text-[#A09B8C]">{desc}</p>
-      </div>
-      <div className="flex items-center gap-4">
-        <span className="badge badge-gold">+{points}P</span>
-        <svg className="w-5 h-5 text-[#3C3C41]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-        </svg>
-      </div>
+    <Link to={to} style={{ textDecoration: 'none' }}>
+      <ClickableTile
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '1.5rem',
+          border: accent ? '1px solid #C8AA6E' : undefined,
+        }}
+      >
+        <div>
+          <h3
+            style={{
+              fontWeight: 600,
+              marginBottom: '0.25rem',
+              color: accent ? '#C8AA6E' : '#f4f4f4',
+            }}
+          >
+            {title}
+          </h3>
+          <p style={{ fontSize: '0.875rem', color: '#c6c6c6' }}>{desc}</p>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <Tag type="blue" size="sm">
+            +{points}P
+          </Tag>
+          <ChevronRight size={20} style={{ color: '#6f6f6f' }} />
+        </div>
+      </ClickableTile>
     </Link>
   )
 }
 
 function PointItem({ label, points }: { label: string; points: number }) {
   return (
-    <div className="flex items-center justify-between p-4 bg-[#010A13] rounded border border-[#1E2328]">
-      <span className="text-sm text-[#A09B8C]">{label}</span>
-      <span className="text-[#C8AA6E] font-semibold">+{points}P</span>
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '1rem',
+        background: '#161616',
+        borderRadius: '4px',
+        border: '1px solid #393939',
+      }}
+    >
+      <span style={{ fontSize: '0.875rem', color: '#c6c6c6' }}>{label}</span>
+      <span style={{ color: '#C8AA6E', fontWeight: 600 }}>+{points}P</span>
     </div>
   )
 }
@@ -279,31 +365,45 @@ function PointItem({ label, points }: { label: string; points: number }) {
 function MemberCard({ member, rank }: { member: User; rank: number }) {
   const tierInfo = TIER_INFO[member.tier] || TIER_INFO.bronze
   const displayName = member.nickname || member.displayName
+  const [flipped, setFlipped] = useState(false)
 
   return (
     <div
-      className="relative flex-shrink-0 w-[140px] h-[190px] group"
-      style={{ perspective: '1000px' }}
+      className={`flip-card ${flipped ? 'flipped' : ''}`}
+      style={{ flexShrink: 0, width: 140, height: 190 }}
+      onClick={() => setFlipped(!flipped)}
     >
-      <div
-        className="relative w-full h-full transition-transform duration-500 group-hover:[transform:rotateY(180deg)]"
-        style={{ transformStyle: 'preserve-3d' }}
-      >
+      <div className="flip-card-inner">
         {/* Front Side */}
         <div
-          className="absolute inset-0 rounded-lg border border-[#3C3C41] p-3 flex flex-col items-center justify-center"
+          className="flip-card-front"
           style={{
-            background: `linear-gradient(180deg, ${tierInfo.color}10 0%, #1E2328 100%)`,
-            backfaceVisibility: 'hidden',
+            background: `linear-gradient(180deg, ${tierInfo.color}10 0%, #262626 100%)`,
+            border: '1px solid #393939',
+            padding: '0.75rem',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
           {/* Rank Badge */}
           {rank <= 3 && (
             <div
-              className="absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shadow-lg"
               style={{
+                position: 'absolute',
+                top: 8,
+                right: 8,
+                width: 24,
+                height: 24,
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '0.75rem',
+                fontWeight: 700,
                 background: rank === 1 ? '#FFD700' : rank === 2 ? '#C0C0C0' : '#CD7F32',
-                color: '#010A13',
+                color: '#161616',
               }}
             >
               {rank}
@@ -311,15 +411,20 @@ function MemberCard({ member, rank }: { member: User; rank: number }) {
           )}
 
           {/* Profile Image */}
-          <div className="relative mb-3">
+          <div style={{ position: 'relative', marginBottom: '0.75rem' }}>
             <img
               src={member.photoURL || '/default-avatar.png'}
               alt={displayName}
-              className="w-14 h-14 rounded-full border-2 object-cover"
-              style={{ borderColor: tierInfo.color }}
+              className="avatar"
+              style={{ width: 56, height: 56, borderColor: tierInfo.color }}
             />
             <span
-              className="absolute -bottom-1 -right-1 text-base"
+              style={{
+                position: 'absolute',
+                bottom: -4,
+                right: -4,
+                fontSize: '1rem',
+              }}
               title={tierInfo.name}
             >
               {tierInfo.emoji}
@@ -327,64 +432,111 @@ function MemberCard({ member, rank }: { member: User; rank: number }) {
           </div>
 
           {/* Name */}
-          <h3 className="w-full font-semibold text-[#F0E6D2] text-sm mb-1 truncate text-center">
+          <h3
+            style={{
+              width: '100%',
+              fontWeight: 600,
+              color: '#f4f4f4',
+              fontSize: '0.875rem',
+              marginBottom: '0.25rem',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              textAlign: 'center',
+            }}
+          >
             {displayName}
           </h3>
 
           {/* Tier */}
-          <p className="text-[11px] font-medium mb-3 text-center" style={{ color: tierInfo.color }}>
+          <p
+            style={{
+              fontSize: '11px',
+              fontWeight: 500,
+              marginBottom: '0.75rem',
+              textAlign: 'center',
+              color: tierInfo.color,
+            }}
+          >
             {tierInfo.name}
           </p>
 
           {/* Points */}
-          <div className="bg-[#010A13] rounded px-3 py-1.5">
-            <span className="text-[11px] text-[#C8AA6E] font-semibold">{member.points}P</span>
+          <div style={{ background: '#161616', borderRadius: 4, padding: '0.375rem 0.75rem' }}>
+            <span style={{ fontSize: '11px', color: '#C8AA6E', fontWeight: 600 }}>{member.points}P</span>
           </div>
         </div>
 
         {/* Back Side */}
         <div
-          className="absolute inset-0 rounded-lg border border-[#C8AA6E]/50 p-4 flex flex-col items-center justify-center gap-3"
+          className="flip-card-back"
           style={{
-            background: `linear-gradient(180deg, ${tierInfo.color}20 0%, #1E2328 100%)`,
-            backfaceVisibility: 'hidden',
-            transform: 'rotateY(180deg)',
+            background: `linear-gradient(180deg, ${tierInfo.color}20 0%, #262626 100%)`,
+            border: '1px solid rgba(200, 170, 110, 0.5)',
+            padding: '1rem',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.75rem',
           }}
         >
           {/* Tier Emoji */}
-          <div className="text-3xl mb-1">{tierInfo.emoji}</div>
+          <div style={{ fontSize: '1.875rem', marginBottom: '0.25rem' }}>{tierInfo.emoji}</div>
 
           {/* LOL Nickname */}
           {member.lolNickname ? (
-            <div className="w-full text-center">
-              <p className="text-[10px] text-[#A09B8C] mb-1">소환사명</p>
-              <p className="text-sm font-semibold text-[#0AC8B9] truncate">{member.lolNickname}</p>
+            <div style={{ width: '100%', textAlign: 'center' }}>
+              <p style={{ fontSize: '10px', color: '#c6c6c6', marginBottom: '0.25rem' }}>소환사명</p>
+              <p
+                style={{
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  color: '#0AC8B9',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {member.lolNickname}
+              </p>
             </div>
           ) : (
-            <div className="w-full text-center">
-              <p className="text-[10px] text-[#A09B8C] mb-1">소환사명</p>
-              <p className="text-xs text-[#3C3C41]">미등록</p>
+            <div style={{ width: '100%', textAlign: 'center' }}>
+              <p style={{ fontSize: '10px', color: '#c6c6c6', marginBottom: '0.25rem' }}>소환사명</p>
+              <p style={{ fontSize: '0.75rem', color: '#6f6f6f' }}>미등록</p>
             </div>
           )}
 
           {/* Favorite Game */}
           {member.favoriteGame ? (
-            <div className="w-full text-center">
-              <p className="text-[10px] text-[#A09B8C] mb-1">좋아하는 게임</p>
-              <p className="text-xs font-medium text-[#F0E6D2] truncate">{member.favoriteGame}</p>
+            <div style={{ width: '100%', textAlign: 'center' }}>
+              <p style={{ fontSize: '10px', color: '#c6c6c6', marginBottom: '0.25rem' }}>좋아하는 게임</p>
+              <p
+                style={{
+                  fontSize: '0.75rem',
+                  fontWeight: 500,
+                  color: '#f4f4f4',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {member.favoriteGame}
+              </p>
             </div>
           ) : (
-            <div className="w-full text-center">
-              <p className="text-[10px] text-[#A09B8C] mb-1">좋아하는 게임</p>
-              <p className="text-xs text-[#3C3C41]">미등록</p>
+            <div style={{ width: '100%', textAlign: 'center' }}>
+              <p style={{ fontSize: '10px', color: '#c6c6c6', marginBottom: '0.25rem' }}>좋아하는 게임</p>
+              <p style={{ fontSize: '0.75rem', color: '#6f6f6f' }}>미등록</p>
             </div>
           )}
 
           {/* Main Position */}
           {member.mainPosition && (
-            <div className="w-full text-center">
-              <p className="text-[10px] text-[#A09B8C] mb-1">포지션</p>
-              <p className="text-xs font-medium text-[#C8AA6E]">{member.mainPosition}</p>
+            <div style={{ width: '100%', textAlign: 'center' }}>
+              <p style={{ fontSize: '10px', color: '#c6c6c6', marginBottom: '0.25rem' }}>포지션</p>
+              <p style={{ fontSize: '0.75rem', fontWeight: 500, color: '#C8AA6E' }}>{member.mainPosition}</p>
             </div>
           )}
         </div>

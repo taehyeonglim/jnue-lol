@@ -2,6 +2,12 @@ import { useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { sendMessage } from '../../services/messageService'
 import { User, TIER_INFO } from '../../types'
+import {
+  Modal,
+  TextInput,
+  TextArea,
+  InlineNotification,
+} from '@carbon/react'
 
 interface SendMessageModalProps {
   receiver: User
@@ -22,8 +28,7 @@ export default function SendMessageModal({
 
   const tierInfo = TIER_INFO[receiver.tier] || TIER_INFO.bronze
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async () => {
     if (!currentUser) return
 
     if (!title.trim()) {
@@ -57,109 +62,70 @@ export default function SendMessageModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-        onClick={onClose}
+    <Modal
+      open
+      modalHeading="쪽지 보내기"
+      primaryButtonText={submitting ? '전송 중...' : '보내기'}
+      secondaryButtonText="취소"
+      onRequestClose={onClose}
+      onRequestSubmit={handleSubmit}
+      primaryButtonDisabled={submitting}
+      size="md"
+    >
+      {/* Receiver Info */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.75rem',
+        marginBottom: '1rem',
+        padding: '0.75rem',
+        backgroundColor: '#262626',
+        borderRadius: 4,
+      }}>
+        <span style={{ fontSize: '0.875rem', color: '#c6c6c6' }}>받는 사람:</span>
+        <img
+          src={receiver.photoURL || '/default-avatar.png'}
+          alt={receiver.nickname || receiver.displayName}
+          className="avatar avatar-sm"
+          style={{ borderColor: tierInfo.color }}
+        />
+        <span style={{ fontWeight: 500, color: '#f4f4f4' }}>
+          {receiver.nickname || receiver.displayName}
+        </span>
+        <span style={{ fontSize: '0.875rem', color: tierInfo.color }}>
+          {tierInfo.emoji}
+        </span>
+      </div>
+
+      {error && (
+        <InlineNotification
+          kind="error"
+          title={error}
+          lowContrast
+          hideCloseButton
+          style={{ marginBottom: '1rem' }}
+        />
+      )}
+
+      <TextInput
+        id="message-title"
+        labelText="제목"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        placeholder="제목을 입력하세요"
+        maxLength={100}
+        style={{ marginBottom: '1rem' }}
       />
 
-      {/* Modal */}
-      <div className="relative bg-[#1E2328] rounded-lg border border-[#3C3C41] w-full max-w-lg shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-[#3C3C41]">
-          <div className="flex items-center gap-3">
-            <span className="text-xl">💌</span>
-            <h2 className="text-lg font-semibold text-[#C8AA6E]">쪽지 보내기</h2>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-[#A09B8C] hover:text-[#F0E6D2] transition-colors"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        {/* Body */}
-        <form onSubmit={handleSubmit} className="p-4">
-          {/* Receiver Info */}
-          <div className="flex items-center gap-3 mb-4 p-3 bg-[#010A13] rounded border border-[#3C3C41]">
-            <span className="text-sm text-[#A09B8C]">받는 사람:</span>
-            <img
-              src={receiver.photoURL || '/default-avatar.png'}
-              alt={receiver.nickname || receiver.displayName}
-              className="avatar avatar-sm"
-              style={{ borderColor: tierInfo.color }}
-            />
-            <span className="font-medium text-[#F0E6D2]">
-              {receiver.nickname || receiver.displayName}
-            </span>
-            <span className="text-sm" style={{ color: tierInfo.color }}>
-              {tierInfo.emoji}
-            </span>
-          </div>
-
-          {error && (
-            <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded text-sm text-red-400">
-              {error}
-            </div>
-          )}
-
-          {/* Title */}
-          <div className="mb-4">
-            <label htmlFor="title" className="block text-sm font-medium text-[#F0E6D2] mb-2">
-              제목
-            </label>
-            <input
-              type="text"
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="제목을 입력하세요"
-              className="input"
-              maxLength={100}
-            />
-          </div>
-
-          {/* Content */}
-          <div className="mb-4">
-            <label htmlFor="content" className="block text-sm font-medium text-[#F0E6D2] mb-2">
-              내용
-            </label>
-            <textarea
-              id="content"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="내용을 입력하세요"
-              className="input textarea h-40"
-              maxLength={1000}
-            />
-            <div className="flex justify-end mt-1">
-              <span className="text-xs text-[#A09B8C]">{content.length} / 1000</span>
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 btn btn-secondary"
-            >
-              취소
-            </button>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="flex-1 btn btn-primary"
-            >
-              {submitting ? '전송 중...' : '보내기'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+      <TextArea
+        id="message-content"
+        labelText="내용"
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        placeholder="내용을 입력하세요"
+        maxCount={1000}
+        rows={6}
+      />
+    </Modal>
   )
 }

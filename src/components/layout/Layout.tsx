@@ -1,15 +1,16 @@
 import { Outlet } from 'react-router-dom'
+import { Content } from '@carbon/react'
 import Header from './Header'
 import Footer from './Footer'
 import OnlineUsers from '../common/OnlineUsers'
 
 export default function Layout() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header />
-      <main className="flex-1">
+      <Content style={{ flex: 1, padding: 0 }}>
         <Outlet />
-      </main>
+      </Content>
       <Footer />
       <OnlineUsers />
     </div>

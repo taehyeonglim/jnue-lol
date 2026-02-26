@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom'
+import { Theme } from '@carbon/react'
 import { useAuth } from './contexts/AuthContext'
 import Layout from './components/layout/Layout'
 import ProtectedRoute from './components/common/ProtectedRoute'
@@ -23,65 +24,69 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-hero-pattern">
-        <LoadingSpinner />
-      </div>
+      <Theme theme="g100">
+        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <LoadingSpinner />
+        </div>
+      </Theme>
     )
   }
 
   return (
-    <Routes>
-      <Route path="/" element={<Layout />}>
-        <Route index element={<Home />} />
-        <Route path="introduction" element={<Introduction />} />
-        <Route path="free" element={<FreeBoard />} />
-        <Route path="games" element={<GamesBoard />} />
-        <Route path="gallery" element={<Gallery />} />
-        <Route path="post/:id" element={<PostDetail />} />
-        <Route path="ranking" element={<Ranking />} />
+    <Theme theme="g100">
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="introduction" element={<Introduction />} />
+          <Route path="free" element={<FreeBoard />} />
+          <Route path="games" element={<GamesBoard />} />
+          <Route path="gallery" element={<Gallery />} />
+          <Route path="post/:id" element={<PostDetail />} />
+          <Route path="ranking" element={<Ranking />} />
 
-        {/* Protected Routes */}
-        <Route
-          path="write"
-          element={
-            <ProtectedRoute>
-              <WritePost />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="edit/:id"
-          element={
-            <ProtectedRoute>
-              <EditPost />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="mypage"
-          element={
-            <ProtectedRoute>
-              <MyPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="messages"
-          element={
-            <ProtectedRoute>
-              <Messages />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="admin"
-          element={
-            <ProtectedRoute requireAdmin>
-              <Admin />
-            </ProtectedRoute>
-          }
-        />
-      </Route>
-    </Routes>
+          {/* Protected Routes */}
+          <Route
+            path="write"
+            element={
+              <ProtectedRoute>
+                <WritePost />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="edit/:id"
+            element={
+              <ProtectedRoute>
+                <EditPost />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="mypage"
+            element={
+              <ProtectedRoute>
+                <MyPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="messages"
+            element={
+              <ProtectedRoute>
+                <Messages />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="admin"
+            element={
+              <ProtectedRoute requireAdmin>
+                <Admin />
+              </ProtectedRoute>
+            }
+          />
+        </Route>
+      </Routes>
+    </Theme>
   )
 }

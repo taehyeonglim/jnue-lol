@@ -1,0 +1,160 @@
+@use '@carbon/react/scss/themes' as themes;
+@use '@carbon/react/scss/theme' with (
+  $theme: themes.$g100,
+);
+@use '@carbon/react';
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+// Custom scrollbar
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #161616;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #525252;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6f6f6f;
+}
+
+// Avatar (Carbon has no avatar component)
+.avatar {
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #525252;
+  flex-shrink: 0;
+}
+.avatar-xs { width: 24px; height: 24px; }
+.avatar-sm { width: 32px; height: 32px; }
+.avatar-md { width: 40px; height: 40px; }
+.avatar-lg { width: 56px; height: 56px; }
+.avatar-xl { width: 80px; height: 80px; border-width: 3px; }
+
+// Tier colors (domain-specific)
+.tier-bronze { color: #8C5A3C; }
+.tier-silver { color: #7C8B99; }
+.tier-gold { color: #CD9E3C; }
+.tier-platinum { color: #209B8E; }
+.tier-diamond { color: #576BCE; }
+.tier-master { color: #9D48E0; }
+.tier-challenger { color: #F4C874; }
+
+// Animations
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease;
+}
+
+// MemberCard flip animation
+.flip-card {
+  perspective: 1000px;
+  cursor: pointer;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.flip-card.flipped .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
+}
+
+// Page layout helpers
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.page-container-sm {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.page-container-xs {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+// Page header
+.page-header {
+  padding: 2rem 0;
+  text-align: center;
+  border-bottom: 1px solid #393939;
+  margin-bottom: 2rem;
+}
+
+// Override Carbon header to work with full-width
+.cds--header {
+  border-bottom: 1px solid #393939;
+}
+
+// Notification badge for header
+.notification-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  background: #da1e28;
+  border-radius: 50%;
+}
+
+// Post content styling
+.post-content {
+  line-height: 1.8;
+  word-break: break-word;
+
+  img {
+    max-width: 100%;
+    border-radius: 4px;
+    margin: 1rem 0;
+  }
+}
+
+// Scrollbar hide utility
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
