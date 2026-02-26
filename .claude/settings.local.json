@@ -12,7 +12,13 @@
       "Bash(firebase projects:list:*)",
       "Bash(firebase deploy:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "mcp__filesystem__list_allowed_directories",
+      "mcp__filesystem__directory_tree",
+      "Bash(npx tsc:*)",
+      "Bash(git rm:*)",
+      "Bash(git push:*)",
+      "Bash(npx firebase deploy:*)"
     ]
   }
 }
